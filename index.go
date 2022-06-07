@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"io/fs"
 	"io/ioutil"
 	"path/filepath"
@@ -23,6 +24,34 @@ func NewIndex() *Index {
 	}
 }
 
+// AddResource adds a resource to the index
+func (i *Index) AddResource(r *v1.Resource) {
+	if _, ok := i.resourceByKind[r.Resource.Kind]; !ok {
+		i.resourceByKind[r.Resource.Kind] = map[string]*v1.Resource{}
+	}
+	i.resourceByKind[r.Resource.Kind][r.Resource.Name] = r
+}
+
+// RemoveResource removes a resource from the index
+func (i *Index) RemoveResource(r *v1.Resource) {
+	if _, ok := i.resourceByKind[r.Resource.Kind]; ok {
+		delete(i.resourceByKind[r.Resource.Kind], r.Resource.Name)
+		if len(i.resourceByKind[r.Resource.Kind]) == 0 {
+			delete(i.resourceByKind, r.Resource.Kind)
+		}
+	}
+}
+
+// AddTemplate adds a template to the index
+func (i *Index) AddTemplate(t *v1.Template) {
+	i.template[t.Template.Name] = t
+}
+
+// RemoveTemplate removes a template from the index
+func (i *Index) RemoveTemplate(t *v1.Template) {
+	delete(i.template, t.Template.Name)
+}
+
 func (i *Index) Load(dir string) []error {
 	errs := []error{}
 	filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
@@ -38,19 +67,42 @@ func (i *Index) Load(dir string) []error {
 			errs = append(errs, err)
 			return nil
 		}
-		var res v1.Resource
-		var tmp v1.Template
-		if err = yaml.Unmarshal(yamlBytes, &res); err != nil {
-			if err = yaml.Unmarshal(yamlBytes, &tmp); err != nil {
+		var doc map[string]interface{}
+		err = yaml.Unmarshal(yamlBytes, &doc)
+		if err != nil {
+			errs = append(errs, err)
+			return nil
+		}
+		// There must be APIVersion = v1
+		apiVersion, ok := doc["apiVersion"].(string)
+		if !ok {
+			errs = append(errs, fmt.Errorf("%s: no apiVersion", path))
+			return nil
+		}
+		if apiVersion != "v1" {
+			errs = append(errs, fmt.Errorf("%s: invalid apiVersion", path))
+			return nil
+		}
+		// If there is a resource key, unmarshal as Resource
+		if _, ok := doc["resource"]; ok {
+			var resource v1.Resource
+			err = yaml.Unmarshal(yamlBytes, &resource)
+			if err != nil {
 				errs = append(errs, err)
 				return nil
 			}
-			i.template[tmp.Template.Name] = &tmp
-		} else {
-			if _, ok := i.resourceByKind[res.Resource.Kind]; !ok {
-				i.resourceByKind[res.Resource.Kind] = map[string]*v1.Resource{}
+			i.AddResource(&resource)
+			// If there is a template key, unmarshal as Template
+		} else if _, ok := doc["template"]; ok {
+			var template v1.Template
+			err = yaml.Unmarshal(yamlBytes, &template)
+			if err != nil {
+				errs = append(errs, err)
+				return nil
 			}
-			i.resourceByKind[res.Resource.Kind][res.Resource.Name] = &res
+			i.AddTemplate(&template)
+		} else {
+			errs = append(errs, fmt.Errorf("%s: no resource or template", path))
 		}
 		return nil
 	})

@@ -1,11 +1,15 @@
 package v1
 
 type OutputSpec struct {
-	Name       string `yaml:"name"`
-	Repository string `yaml:"repository"`
-	Path       string `yaml:"path"`
-	Template   string `yaml:"template"`
+	Name          string `yaml:"name"`
+	Repository    string `yaml:"repository"`
+	Path          string `yaml:"path"`
+	Template      string `yaml:"template"`
+	PostProcessor string `yaml:"postProcessor"`
 }
+
+// ValidOutputSpecFields is the list of valid fields in a OutputSpec.
+var ValidOutputSpecFields = []string{"name", "repository", "path", "template", "postProcessor"}
 
 // ResourceSpec is the specification of a resource.
 type ResourceSpec struct {

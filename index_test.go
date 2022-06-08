@@ -418,3 +418,46 @@ func Test_Index_Load_MultipleErrors(t *testing.T) {
 		t.Errorf("Expected testdata/017-multiple-errors/resource-2.yaml: invalid apiVersion, got %s", errs[1].Error())
 	}
 }
+
+// Test_Index_LoadResourceWithOutput tests the Load function of the Index. It
+// expects to load 1 Resource with 1 Output.
+func Test_Index_LoadResourceWithOutput(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/023-resource-with-output")
+	if len(errs) != 0 {
+		t.Errorf("Expected 0 errors, got %d", len(errs))
+	}
+	if len(i.resourceByKind) != 1 {
+		t.Errorf("Expected 1 resource, got %d", len(i.resourceByKind))
+	}
+	if len(i.resourceByKind["test"]) != 1 {
+		t.Errorf("Expected 1 resource, got %d", len(i.resourceByKind["test"]))
+	}
+	resource := i.resourceByKind["test"]["resource-1"]
+	if resource.Resource.Name != "resource-1" {
+		t.Errorf("Expected resource-1, got %s", resource.Resource.Name)
+	}
+	if len(resource.Resource.Outputs) != 1 {
+		t.Errorf("Expected 1 output, got %d", len(resource.Resource.Outputs))
+	}
+	// Validate name
+	if resource.Resource.Outputs[0].Name != "output-1" {
+		t.Errorf("Expected output-1, got %s", resource.Resource.Outputs[0].Name)
+	}
+	// Validate path
+	if resource.Resource.Outputs[0].Path != "path" {
+		t.Errorf("Expected path, got %s", resource.Resource.Outputs[0].Path)
+	}
+	// Validate repository
+	if resource.Resource.Outputs[0].Repository != "repository" {
+		t.Errorf("Expected repository, got %s", resource.Resource.Outputs[0].Repository)
+	}
+	// Validate template
+	if resource.Resource.Outputs[0].Template != "template" {
+		t.Errorf("Expected template, got %s", resource.Resource.Outputs[0].Template)
+	}
+	// Validate postProcessor
+	if resource.Resource.Outputs[0].PostProcessor != "postProcessor" {
+		t.Errorf("Expected postProcessor, got %s", resource.Resource.Outputs[0].PostProcessor)
+	}
+}

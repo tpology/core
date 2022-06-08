@@ -70,7 +70,8 @@ func (i *Index) Load(dir string) []error {
 		var doc map[string]interface{}
 		err = yaml.Unmarshal(yamlBytes, &doc)
 		if err != nil {
-			errs = append(errs, err)
+			// Format the error to prepend the resource path
+			errs = append(errs, fmt.Errorf("%s: %s", path, err))
 			return nil
 		}
 		// There must be APIVersion = v1

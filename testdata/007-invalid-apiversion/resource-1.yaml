@@ -1,0 +1,4 @@
+apiVersion: invalid
+resource:
+  name: resource-1
+  kind: test

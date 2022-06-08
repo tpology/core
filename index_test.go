@@ -277,3 +277,42 @@ func Test_Index_Load_CorruptedDocument(t *testing.T) {
 		t.Errorf("Expected corrupted document, got %s", errs[0].Error())
 	}
 }
+
+// Test_Index_MissingAPIVersion tests the Load function of the Index. It
+// expects to receive an error due to a missing API version.
+func Test_Index_MissingAPIVersion(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/006-missing-apiversion")
+	if len(errs) != 1 {
+		t.Errorf("Expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "testdata/006-missing-apiversion/resource-1.yaml: no apiVersion" {
+		t.Errorf("Expected missing API version, got %s", errs[0].Error())
+	}
+}
+
+// Test_Index_InvalidAPIVersion tests the Load function of the Index. It
+// expects to receive an error due to an invalid API version.
+func Test_Index_InvalidAPIVersion(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/007-invalid-apiversion")
+	if len(errs) != 1 {
+		t.Errorf("Expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "testdata/007-invalid-apiversion/resource-1.yaml: invalid apiVersion" {
+		t.Errorf("Expected invalid API version, got %s", errs[0].Error())
+	}
+}
+
+// Test_Index_Load_InvalidResource tests the Load function of the Index. It
+// expects to receive an error due to an invalid resource.
+func Test_Index_Load_InvalidResource(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/008-invalid-resource")
+	if len(errs) != 1 {
+		t.Errorf("Expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "testdata/008-invalid-resource/resource-1.yaml: no resource or template" {
+		t.Errorf("Expected invalid resource, got %s", errs[0].Error())
+	}
+}

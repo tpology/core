@@ -1,0 +1,4 @@
+apiVersion: v1
+repository:
+  repository: test-repo-1
+  branch: test-branch

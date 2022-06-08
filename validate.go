@@ -19,6 +19,10 @@ func (i *Index) validate() []error {
 	for _, t := range i.template {
 		errs = append(errs, validateTemplate(t)...)
 	}
+	// validate repositories
+	for _, r := range i.repository {
+		errs = append(errs, validateRepository(r)...)
+	}
 	return errs
 }
 
@@ -46,62 +50,78 @@ func validateTemplate(t *v1.Template) []error {
 	return errs
 }
 
-// validateResourceFields validates the fields in a Resource.
-func validateResourceFields(r map[string]interface{}) []error {
+// validateRepository validates the repository
+func validateRepository(r *v1.Repository) []error {
 	errs := []error{}
+	// validate name
+	if r.Repository.Name == "" {
+		errs = append(errs, fmt.Errorf("repository name is required"))
+	}
+	// validate repository
+	if r.Repository.Repository == "" {
+		errs = append(errs, fmt.Errorf("repository is required"))
+	}
+	// validate branch
+	if r.Repository.Branch == "" {
+		errs = append(errs, fmt.Errorf("repository branch is required"))
+	}
+	return errs
+}
+
+// validateFields validates the fields against a list of valid fields.
+func validateFields(kind string, r map[string]interface{}, validFields []string) []error {
 FIELD:
-	for field, _ := range r {
-		for _, validField := range v1.ValidResourceFields {
-			if field == validField {
+	for k := range r {
+		for _, f := range validFields {
+			if k == f {
 				continue FIELD
 			}
 		}
-		errs = append(errs, fmt.Errorf("invalid resource field `%s`", field))
+		return []error{fmt.Errorf("invalid %s field `%s`", kind, k)}
 	}
-	return errs
+	return nil
+}
+
+// validateSpecFields validates the fields against a list of valid fields.
+func validateSpecFields(kind string, r map[interface{}]interface{}, validFields []string) []error {
+FIELD:
+	for k := range r {
+		for _, f := range validFields {
+			if k == f {
+				continue FIELD
+			}
+		}
+		return []error{fmt.Errorf("invalid %s spec field `%s`", kind, k)}
+	}
+	return nil
+}
+
+// validateResourceFields validates the fields in a Resource.
+func validateResourceFields(r map[string]interface{}) []error {
+	return validateFields("resource", r, v1.ValidResourceFields)
 }
 
 // validateResourceSpecFields validates the fields in a ResourceSpec.
 func validateResourceSpecFields(r map[interface{}]interface{}) []error {
-	errs := []error{}
-FIELD:
-	for field, _ := range r {
-		for _, validField := range v1.ValidResourceSpecFields {
-			if field == validField {
-				continue FIELD
-			}
-		}
-		errs = append(errs, fmt.Errorf("invalid resource spec field `%s`", field))
-	}
-	return errs
+	return validateSpecFields("resource", r, v1.ValidResourceSpecFields)
 }
 
 // validateTemplateFields validates the fields in a Template.
 func validateTemplateFields(r map[string]interface{}) []error {
-	errs := []error{}
-FIELD:
-	for field, _ := range r {
-		for _, validField := range v1.ValidTemplateFields {
-			if field == validField {
-				continue FIELD
-			}
-		}
-		errs = append(errs, fmt.Errorf("invalid template field `%s`", field))
-	}
-	return errs
+	return validateFields("template", r, v1.ValidTemplateFields)
 }
 
 // validateTemplateSpecFields validates the fields in a TemplateSpec.
 func validateTemplateSpecFields(r map[interface{}]interface{}) []error {
-	errs := []error{}
-FIELD:
-	for field, _ := range r {
-		for _, validField := range v1.ValidTemplateSpecFields {
-			if field == validField {
-				continue FIELD
-			}
-		}
-		errs = append(errs, fmt.Errorf("invalid template spec field `%s`", field))
-	}
-	return errs
+	return validateSpecFields("template", r, v1.ValidTemplateSpecFields)
+}
+
+// validateRepositoryFields validates the fields in a Repository.
+func validateRepositoryFields(r map[string]interface{}) []error {
+	return validateFields("repository", r, v1.ValidRepositoryFields)
+}
+
+// validateRepositorySpecFields validates the fields in a RepositorySpec.
+func validateRepositorySpecFields(r map[interface{}]interface{}) []error {
+	return validateSpecFields("repository", r, v1.ValidRepositorySpecFields)
 }

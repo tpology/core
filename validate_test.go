@@ -45,8 +45,8 @@ func Test_Validate_InvalidResourceField(t *testing.T) {
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
-	if errs[0].Error() != "invalid resource field `invalid`" {
-		t.Errorf("expected 'invalid resource field `invalid`', got '%s'", errs[0].Error())
+	if errs[0].Error() != "testdata/validate/012-invalid-resource-field/resource-1.yaml: invalid resource field `invalid`" {
+		t.Errorf("expected 'testdata/validate/012-invalid-resource-field/resource-1.yaml: invalid resource field `invalid`', got '%s'", errs[0].Error())
 	}
 }
 
@@ -57,8 +57,8 @@ func Test_Validate_InvalidResourceSpecField(t *testing.T) {
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
-	if errs[0].Error() != "invalid resource spec field `invalid`" {
-		t.Errorf("expected 'invalid resource spec field `invalid`', got '%s'", errs[0].Error())
+	if errs[0].Error() != "testdata/validate/013-invalid-resource-spec-field/resource-1.yaml: invalid resource spec field `invalid`" {
+		t.Errorf("expected 'testdata/validate/013-invalid-resource-spec-field/resource-1.yaml: invalid resource spec field `invalid`', got '%s'", errs[0].Error())
 	}
 }
 
@@ -69,8 +69,8 @@ func Test_Validate_InvalidTemplateField(t *testing.T) {
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
-	if errs[0].Error() != "invalid template field `invalid`" {
-		t.Errorf("expected 'invalid template field `invalid`', got '%s'", errs[0].Error())
+	if errs[0].Error() != "testdata/validate/014-invalid-template-field/template-1.yaml: invalid template field `invalid`" {
+		t.Errorf("expected 'testdata/validate/014-invalid-template-field/template-1.yaml: invalid template field `invalid`', got '%s'", errs[0].Error())
 	}
 }
 
@@ -81,7 +81,43 @@ func Test_Validate_InvalidTemplateSpecField(t *testing.T) {
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
-	if errs[0].Error() != "invalid template spec field `invalid`" {
-		t.Errorf("expected 'invalid template spec field `invalid`', got '%s'", errs[0].Error())
+	if errs[0].Error() != "testdata/validate/015-invalid-template-spec-field/template-1.yaml: invalid template spec field `invalid`" {
+		t.Errorf("expected 'testdata/validate/015-invalid-template-spec-field/template-1.yaml: invalid template spec field `invalid`', got '%s'", errs[0].Error())
+	}
+}
+
+// Test_Valid_MissingRepositoryName tests that a repository without a name is not valid
+func Test_Validate_MissingRepositoryName(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/validate/018-missing-repository-name")
+	if len(errs) != 1 {
+		t.Errorf("expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "repository name is required" {
+		t.Errorf("expected 'repository name is required', got '%s'", errs[0].Error())
+	}
+}
+
+// Test_Valid_MissingRepository tests that a repository without a repo is not valid
+func Test_Validate_MissingRepository(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/validate/019-missing-repository")
+	if len(errs) != 1 {
+		t.Errorf("expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "repository is required" {
+		t.Errorf("expected 'repository is required', got '%s'", errs[0].Error())
+	}
+}
+
+// Test_Valid_MissingRepositoryBranch tests that a repository without a branch is not valid
+func Test_Validate_MissingRepositoryBranch(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/validate/020-missing-repository-branch")
+	if len(errs) != 1 {
+		t.Errorf("expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "repository branch is required" {
+		t.Errorf("expected 'repository branch is required', got '%s'", errs[0].Error())
 	}
 }

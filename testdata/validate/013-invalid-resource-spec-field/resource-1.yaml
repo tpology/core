@@ -1,0 +1,5 @@
+# A Resource with an invalid spec field
+apiVersion: v1
+resource:
+  kind: test
+  invalid: test

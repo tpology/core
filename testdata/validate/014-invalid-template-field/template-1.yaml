@@ -1,0 +1,6 @@
+# A Template with an invalid field
+apiVersion: v1
+template:
+  name: test
+  content: test
+invalid: test

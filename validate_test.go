@@ -37,3 +37,51 @@ func Test_Validate_MissingTemplateName(t *testing.T) {
 		t.Errorf("expected 'template name is required', got '%s'", errs[0].Error())
 	}
 }
+
+// Test_Valid_InvalidResourceField tests that an invalid resource field is not valid
+func Test_Validate_InvalidResourceField(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/validate/012-invalid-resource-field")
+	if len(errs) != 1 {
+		t.Errorf("expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "invalid resource field `invalid`" {
+		t.Errorf("expected 'invalid resource field `invalid`', got '%s'", errs[0].Error())
+	}
+}
+
+// Test_Valid_InvalidResourceSpecField tests that an invalid resource spec field is not valid
+func Test_Validate_InvalidResourceSpecField(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/validate/013-invalid-resource-spec-field")
+	if len(errs) != 1 {
+		t.Errorf("expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "invalid resource spec field `invalid`" {
+		t.Errorf("expected 'invalid resource spec field `invalid`', got '%s'", errs[0].Error())
+	}
+}
+
+// Test_Valid_InvalidTemplateField tests that an invalid template field is not valid
+func Test_Validate_InvalidTemplateField(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/validate/014-invalid-template-field")
+	if len(errs) != 1 {
+		t.Errorf("expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "invalid template field `invalid`" {
+		t.Errorf("expected 'invalid template field `invalid`', got '%s'", errs[0].Error())
+	}
+}
+
+// Test_Valid_InvalidTemplateSpecField tests that an invalid template spec field is not valid
+func Test_Validate_InvalidTemplateSpecField(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/validate/015-invalid-template-spec-field")
+	if len(errs) != 1 {
+		t.Errorf("expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "invalid template spec field `invalid`" {
+		t.Errorf("expected 'invalid template spec field `invalid`', got '%s'", errs[0].Error())
+	}
+}

@@ -1,0 +1,6 @@
+# A Resource with an invalid field
+apiVersion: v1
+resource:
+  name: test
+  kind: test
+invalid: test

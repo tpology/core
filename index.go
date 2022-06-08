@@ -85,6 +85,16 @@ func (i *Index) Load(dir string) []error {
 		}
 		// If there is a resource key, unmarshal as Resource
 		if _, ok := doc["resource"]; ok {
+			verrs := validateResourceFields(doc)
+			if len(verrs) > 0 {
+				errs = append(errs, verrs...)
+				return nil
+			}
+			verrs = validateResourceSpecFields(doc["resource"].(map[interface{}]interface{}))
+			if len(verrs) > 0 {
+				errs = append(errs, verrs...)
+				return nil
+			}
 			var resource v1.Resource
 			err = yaml.Unmarshal(yamlBytes, &resource)
 			if err != nil {
@@ -94,6 +104,16 @@ func (i *Index) Load(dir string) []error {
 			i.AddResource(&resource)
 			// If there is a template key, unmarshal as Template
 		} else if _, ok := doc["template"]; ok {
+			verrs := validateTemplateFields(doc)
+			if len(verrs) > 0 {
+				errs = append(errs, verrs...)
+				return nil
+			}
+			verrs = validateTemplateSpecFields(doc["template"].(map[interface{}]interface{}))
+			if len(verrs) > 0 {
+				errs = append(errs, verrs...)
+				return nil
+			}
 			var template v1.Template
 			err = yaml.Unmarshal(yamlBytes, &template)
 			if err != nil {

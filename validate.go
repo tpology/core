@@ -45,3 +45,63 @@ func validateTemplate(t *v1.Template) []error {
 	}
 	return errs
 }
+
+// validateResourceFields validates the fields in a Resource.
+func validateResourceFields(r map[string]interface{}) []error {
+	errs := []error{}
+FIELD:
+	for field, _ := range r {
+		for _, validField := range v1.ValidResourceFields {
+			if field == validField {
+				continue FIELD
+			}
+		}
+		errs = append(errs, fmt.Errorf("invalid resource field `%s`", field))
+	}
+	return errs
+}
+
+// validateResourceSpecFields validates the fields in a ResourceSpec.
+func validateResourceSpecFields(r map[interface{}]interface{}) []error {
+	errs := []error{}
+FIELD:
+	for field, _ := range r {
+		for _, validField := range v1.ValidResourceSpecFields {
+			if field == validField {
+				continue FIELD
+			}
+		}
+		errs = append(errs, fmt.Errorf("invalid resource spec field `%s`", field))
+	}
+	return errs
+}
+
+// validateTemplateFields validates the fields in a Template.
+func validateTemplateFields(r map[string]interface{}) []error {
+	errs := []error{}
+FIELD:
+	for field, _ := range r {
+		for _, validField := range v1.ValidTemplateFields {
+			if field == validField {
+				continue FIELD
+			}
+		}
+		errs = append(errs, fmt.Errorf("invalid template field `%s`", field))
+	}
+	return errs
+}
+
+// validateTemplateSpecFields validates the fields in a TemplateSpec.
+func validateTemplateSpecFields(r map[interface{}]interface{}) []error {
+	errs := []error{}
+FIELD:
+	for field, _ := range r {
+		for _, validField := range v1.ValidTemplateSpecFields {
+			if field == validField {
+				continue FIELD
+			}
+		}
+		errs = append(errs, fmt.Errorf("invalid template spec field `%s`", field))
+	}
+	return errs
+}

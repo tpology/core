@@ -142,6 +142,61 @@ func Test_Index_RemoveTemplate(t *testing.T) {
 	}
 }
 
+// Test_Index_AddRepository tests the AddRepository function of the Index. It
+// adds one Repository and then checks that it was added.
+func Test_Index_AddRepository(t *testing.T) {
+	i := NewIndex()
+	i.AddRepository(&v1.Repository{
+		APIVersion: "v1",
+		Repository: v1.RepositorySpec{
+			Name:       "repo-1",
+			Repository: "test-repo-1",
+			Branch:     "test-branch",
+		},
+	})
+	if len(i.repository) != 1 {
+		t.Errorf("Expected 1 repository, got %d", len(i.repository))
+	}
+	repo := i.repository["repo-1"]
+	if repo.Repository.Name != "repo-1" {
+		t.Errorf("Expected repo-1, got %s", repo.Repository.Name)
+	}
+	if repo.Repository.Repository != "test-repo-1" {
+		t.Errorf("Expected test-repo-1, got %s", repo.Repository.Repository)
+	}
+	if repo.Repository.Branch != "test-branch" {
+		t.Errorf("Expected test-branch, got %s", repo.Repository.Branch)
+	}
+	if len(repo.Repository.Labels) != 0 {
+		t.Errorf("Expected 0 labels, got %d", len(repo.Repository.Labels))
+	}
+	if len(repo.Repository.Annotations) != 0 {
+		t.Errorf("Expected 0 annotations, got %d", len(repo.Repository.Annotations))
+	}
+}
+
+// Test_Index_RemoveRepository tests the RemoveRepository function of the
+// Index. It removes one Repository and then checks that it was removed.
+func Test_Index_RemoveRepository(t *testing.T) {
+	i := NewIndex()
+	repo := &v1.Repository{
+		APIVersion: "v1",
+		Repository: v1.RepositorySpec{
+			Name:       "repo-1",
+			Repository: "test-repo-1",
+			Branch:     "test-branch",
+		},
+	}
+	i.AddRepository(repo)
+	if len(i.repository) != 1 {
+		t.Errorf("Expected 1 repository, got %d", len(i.repository))
+	}
+	i.RemoveRepository(repo)
+	if len(i.repository) != 0 {
+		t.Errorf("Expected 0 repository, got %d", len(i.repository))
+	}
+}
+
 // Test_Index_Load tests the Load function of the Index
 func Test_Index_Load_Basic_Resource(t *testing.T) {
 	i := NewIndex()
@@ -192,6 +247,37 @@ func Test_Index_Load_Basic_Template(t *testing.T) {
 	}
 	if tpl.Template.Content != "test" {
 		t.Errorf("Expected test, got %s", tpl.Template.Content)
+	}
+}
+
+// Test_Index_Load_Basic_Repository tests the Load function of the Index
+func Test_Index_Load_Basic_Repository(t *testing.T) {
+	i := NewIndex()
+	i.Load("testdata/016-basic-repository")
+	if len(i.resourceByKind) != 0 {
+		t.Errorf("Expected 0 kinds, got %d", len(i.resourceByKind))
+	}
+	if len(i.template) != 0 {
+		t.Errorf("Expected 0 templates, got %d", len(i.template))
+	}
+	if len(i.repository) != 1 {
+		t.Errorf("Expected 1 repository, got %d", len(i.repository))
+	}
+	repo := i.repository["repo-1"]
+	if repo.Repository.Name != "repo-1" {
+		t.Errorf("Expected repo-1, got %s", repo.Repository.Name)
+	}
+	if repo.Repository.Repository != "test-repo-1" {
+		t.Errorf("Expected test-repo-1, got %s", repo.Repository.Repository)
+	}
+	if repo.Repository.Branch != "test-branch" {
+		t.Errorf("Expected test-branch, got %s", repo.Repository.Branch)
+	}
+	if len(repo.Repository.Labels) != 0 {
+		t.Errorf("Expected 0 labels, got %d", len(repo.Repository.Labels))
+	}
+	if len(repo.Repository.Annotations) != 0 {
+		t.Errorf("Expected 0 annotations, got %d", len(repo.Repository.Annotations))
 	}
 }
 
@@ -314,5 +400,21 @@ func Test_Index_Load_InvalidResource(t *testing.T) {
 	}
 	if errs[0].Error() != "testdata/008-invalid-resource/resource-1.yaml: no resource or template" {
 		t.Errorf("Expected testdata/008-invalid-resource/resource-1.yaml: no resource or template, got %s", errs[0].Error())
+	}
+}
+
+// Test_Index_Load_MultipleErrors tests the Load function of the Index. It
+// expects to receive multiple errors.
+func Test_Index_Load_MultipleErrors(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/017-multiple-errors")
+	if len(errs) != 2 {
+		t.Errorf("Expected 2 errors, got %d", len(errs))
+	}
+	if errs[0].Error() != "testdata/017-multiple-errors/resource-1.yaml: no apiVersion" {
+		t.Errorf("Expected testdata/017-multiple-errors/resource-1.yaml: no apiVersion, got %s", errs[0].Error())
+	}
+	if errs[1].Error() != "testdata/017-multiple-errors/resource-2.yaml: invalid apiVersion" {
+		t.Errorf("Expected testdata/017-multiple-errors/resource-2.yaml: invalid apiVersion, got %s", errs[1].Error())
 	}
 }

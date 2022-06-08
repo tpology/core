@@ -14,6 +14,7 @@ import (
 type Index struct {
 	resourceByKind map[string]map[string]*v1.Resource
 	template       map[string]*v1.Template
+	repository     map[string]*v1.Repository
 }
 
 // NewIndex returns a new Index
@@ -21,6 +22,7 @@ func NewIndex() *Index {
 	return &Index{
 		resourceByKind: map[string]map[string]*v1.Resource{},
 		template:       map[string]*v1.Template{},
+		repository:     map[string]*v1.Repository{},
 	}
 }
 
@@ -50,6 +52,16 @@ func (i *Index) AddTemplate(t *v1.Template) {
 // RemoveTemplate removes a template from the index
 func (i *Index) RemoveTemplate(t *v1.Template) {
 	delete(i.template, t.Template.Name)
+}
+
+// AddRepository adds a repository to the index
+func (i *Index) AddRepository(r *v1.Repository) {
+	i.repository[r.Repository.Name] = r
+}
+
+// RemoveRepository removes a repository from the index
+func (i *Index) RemoveRepository(r *v1.Repository) {
+	delete(i.repository, r.Repository.Name)
 }
 
 func (i *Index) Load(dir string) []error {
@@ -84,16 +96,22 @@ func (i *Index) Load(dir string) []error {
 			errs = append(errs, fmt.Errorf("%s: invalid apiVersion", path))
 			return nil
 		}
-		// If there is a resource key, unmarshal as Resource
 		if _, ok := doc["resource"]; ok {
+			// If there is a resource key, unmarshal as Resource
 			verrs := validateResourceFields(doc)
 			if len(verrs) > 0 {
-				errs = append(errs, verrs...)
+				// Format the errors to prepend the resource path
+				for _, err := range verrs {
+					errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				}
 				return nil
 			}
 			verrs = validateResourceSpecFields(doc["resource"].(map[interface{}]interface{}))
 			if len(verrs) > 0 {
-				errs = append(errs, verrs...)
+				// Format the errors to prepend the resource path
+				for _, err := range verrs {
+					errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				}
 				return nil
 			}
 			var resource v1.Resource
@@ -103,16 +121,22 @@ func (i *Index) Load(dir string) []error {
 				return nil
 			}
 			i.AddResource(&resource)
-			// If there is a template key, unmarshal as Template
 		} else if _, ok := doc["template"]; ok {
+			// If there is a template key, unmarshal as Template
 			verrs := validateTemplateFields(doc)
 			if len(verrs) > 0 {
-				errs = append(errs, verrs...)
+				// Format the errors to prepend the resource path
+				for _, err := range verrs {
+					errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				}
 				return nil
 			}
 			verrs = validateTemplateSpecFields(doc["template"].(map[interface{}]interface{}))
 			if len(verrs) > 0 {
-				errs = append(errs, verrs...)
+				// Format the errors to prepend the resource path
+				for _, err := range verrs {
+					errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				}
 				return nil
 			}
 			var template v1.Template
@@ -122,6 +146,31 @@ func (i *Index) Load(dir string) []error {
 				return nil
 			}
 			i.AddTemplate(&template)
+		} else if _, ok := doc["repository"]; ok {
+			// If there is a repository key, unmarshal as Repository
+			verrs := validateRepositoryFields(doc)
+			if len(verrs) > 0 {
+				// Format the errors to prepend the resource path
+				for _, err := range verrs {
+					errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				}
+				return nil
+			}
+			verrs = validateRepositorySpecFields(doc["repository"].(map[interface{}]interface{}))
+			if len(verrs) > 0 {
+				// Format the errors to prepend the resource path
+				for _, err := range verrs {
+					errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				}
+				return nil
+			}
+			var repository v1.Repository
+			err = yaml.Unmarshal(yamlBytes, &repository)
+			if err != nil {
+				errs = append(errs, err)
+				return nil
+			}
+			i.AddRepository(&repository)
 		} else {
 			errs = append(errs, fmt.Errorf("%s: no resource or template", path))
 		}

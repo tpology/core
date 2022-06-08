@@ -86,6 +86,30 @@ func Test_Validate_InvalidTemplateSpecField(t *testing.T) {
 	}
 }
 
+// Test_Valid_InvalidRepositoryField tests that an invalid repository field is not valid
+func Test_Validate_InvalidRepositoryField(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/validate/021-invalid-repository-field")
+	if len(errs) != 1 {
+		t.Errorf("expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "testdata/validate/021-invalid-repository-field/repository-1.yaml: invalid repository field `invalid`" {
+		t.Errorf("expected 'testdata/validate/021-invalid-repository-field/repository-1.yaml: invalid repository field `invalid`', got '%s'", errs[0].Error())
+	}
+}
+
+// Test_Valid_InvalidRepositorySpecField tests that an invalid repository spec field is not valid
+func Test_Validate_InvalidRepositorySpecField(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/validate/022-invalid-repository-spec-field")
+	if len(errs) != 1 {
+		t.Errorf("expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "testdata/validate/022-invalid-repository-spec-field/repository-1.yaml: invalid repository spec field `invalid`" {
+		t.Errorf("expected 'testdata/validate/022-invalid-repository-spec-field/repository-1.yaml: invalid repository spec field `invalid`', got '%s'", errs[0].Error())
+	}
+}
+
 // Test_Valid_MissingRepositoryName tests that a repository without a name is not valid
 func Test_Validate_MissingRepositoryName(t *testing.T) {
 	i := NewIndex()

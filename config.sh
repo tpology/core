@@ -14,7 +14,3 @@ function prompt_func() {
 }
 
 export PS1="\[\033[0;32m\]\u@\h\[\033[0;34m\] \w \$(prompt_func)\[\033[0m\]\$ "
-
-# Add a git alias for a pretty log command showing the commit graph
-git config --global alias.lg "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative"
-

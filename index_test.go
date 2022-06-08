@@ -242,7 +242,7 @@ func Test_Index_UnreadableFile(t *testing.T) {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
 	if errs[0].Error() != "open testdata/003-load-unreadable-file/resource-1.yaml: permission denied" {
-		t.Errorf("Expected permission denied, got %s", errs[0].Error())
+		t.Errorf("Expected open testdata/003-load-unreadable-file/resource-1.yaml: permission denied, got %s", errs[0].Error())
 	}
 }
 
@@ -273,8 +273,8 @@ func Test_Index_Load_CorruptedDocument(t *testing.T) {
 	if len(errs) != 1 {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
-	if errs[0].Error() != "yaml: line 4: mapping values are not allowed in this context" {
-		t.Errorf("Expected corrupted document, got %s", errs[0].Error())
+	if errs[0].Error() != "testdata/005-load-corrupted-document/resource-1.yaml: yaml: line 4: mapping values are not allowed in this context" {
+		t.Errorf("Expected testdata/005-load-corrupted-document/resource-1.yaml: yaml: line 4: mapping values are not allowed in this context, got %s", errs[0].Error())
 	}
 }
 
@@ -287,7 +287,7 @@ func Test_Index_MissingAPIVersion(t *testing.T) {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
 	if errs[0].Error() != "testdata/006-missing-apiversion/resource-1.yaml: no apiVersion" {
-		t.Errorf("Expected missing API version, got %s", errs[0].Error())
+		t.Errorf("Expected testdata/006-missing-apiversion/resource-1.yaml: no apiVersion, got %s", errs[0].Error())
 	}
 }
 
@@ -300,7 +300,7 @@ func Test_Index_InvalidAPIVersion(t *testing.T) {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
 	if errs[0].Error() != "testdata/007-invalid-apiversion/resource-1.yaml: invalid apiVersion" {
-		t.Errorf("Expected invalid API version, got %s", errs[0].Error())
+		t.Errorf("Expected testdata/007-invalid-apiversion/resource-1.yaml: invalid apiVersion, got %s", errs[0].Error())
 	}
 }
 
@@ -313,6 +313,6 @@ func Test_Index_Load_InvalidResource(t *testing.T) {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
 	if errs[0].Error() != "testdata/008-invalid-resource/resource-1.yaml: no resource or template" {
-		t.Errorf("Expected invalid resource, got %s", errs[0].Error())
+		t.Errorf("Expected testdata/008-invalid-resource/resource-1.yaml: no resource or template, got %s", errs[0].Error())
 	}
 }

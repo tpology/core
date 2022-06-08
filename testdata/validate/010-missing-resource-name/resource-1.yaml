@@ -1,0 +1,4 @@
+# A Resource with no Name
+apiVersion: v1
+resource:
+  kind: test

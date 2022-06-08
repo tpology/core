@@ -106,5 +106,8 @@ func (i *Index) Load(dir string) []error {
 		}
 		return nil
 	})
-	return errs
+	if len(errs) > 0 {
+		return errs
+	}
+	return i.validate()
 }

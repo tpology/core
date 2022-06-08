@@ -1,0 +1,4 @@
+# A Template with no name
+apiVersion: v1
+template:
+  content: test

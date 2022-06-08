@@ -114,6 +114,17 @@ func (i *Index) Load(dir string) []error {
 				}
 				return nil
 			}
+			output := doc["resource"].(map[interface{}]interface{})["output"]
+			if output != nil {
+				verrs = validateOutputSpecFields(doc["resource"].(map[interface{}]interface{})["output"].(map[interface{}]interface{}))
+				if len(verrs) > 0 {
+					// Format the errors to prepend the resource path
+					for _, err := range verrs {
+						errs = append(errs, fmt.Errorf("%s: %s", path, err))
+					}
+					return nil
+				}
+			}
 			var resource v1.Resource
 			err = yaml.Unmarshal(yamlBytes, &resource)
 			if err != nil {

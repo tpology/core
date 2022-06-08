@@ -106,6 +106,11 @@ func validateResourceSpecFields(r map[interface{}]interface{}) []error {
 	return validateSpecFields("resource", r, v1.ValidResourceSpecFields)
 }
 
+// validateOutputSpecFields validates the fields in a OutputSpec.
+func validateOutputSpecFields(r map[interface{}]interface{}) []error {
+	return validateSpecFields("output", r, v1.ValidOutputSpecFields)
+}
+
 // validateTemplateFields validates the fields in a Template.
 func validateTemplateFields(r map[string]interface{}) []error {
 	return validateFields("template", r, v1.ValidTemplateFields)

@@ -88,7 +88,7 @@ func (i *Index) RemoveRepository(r *v1.Repository) error {
 
 func (i *Index) Load(dir string) []error {
 	errs := []error{}
-	filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			errs = append(errs, err)
 			return nil
@@ -227,6 +227,9 @@ func (i *Index) Load(dir string) []error {
 		}
 		return nil
 	})
+	if err != nil {
+		errs = append(errs, err)
+	}
 	if len(errs) > 0 {
 		return errs
 	}

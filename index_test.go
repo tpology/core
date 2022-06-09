@@ -11,7 +11,7 @@ import (
 // adds one Resource and then checks that it was added.
 func Test_Index_AddResource(t *testing.T) {
 	i := NewIndex()
-	i.AddResource(&v1.Resource{
+	err := i.AddResource(&v1.Resource{
 		APIVersion: "v1",
 		Resource: v1.ResourceSpec{
 			Name:        "resource-1",
@@ -29,6 +29,9 @@ func Test_Index_AddResource(t *testing.T) {
 			},
 		},
 	})
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.resourceByKind) != 1 {
 		t.Errorf("Expected 1 kind, got %d", len(i.resourceByKind))
 	}
@@ -88,11 +91,17 @@ func Test_Index_RemoveResource(t *testing.T) {
 			Kind: "test",
 		},
 	}
-	i.AddResource(r)
+	err := i.AddResource(r)
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.resourceByKind) != 1 {
 		t.Errorf("Expected 1 kind, got %d", len(i.resourceByKind))
 	}
-	i.RemoveResource(r)
+	err = i.RemoveResource(r)
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.resourceByKind) != 0 {
 		t.Errorf("Expected 0 kind, got %d", len(i.resourceByKind))
 	}
@@ -123,13 +132,16 @@ func Test_Index_RemoveResource_Missing(t *testing.T) {
 // adds one Template and then checks that it was added.
 func Test_Index_AddTemplate(t *testing.T) {
 	i := NewIndex()
-	i.AddTemplate(&v1.Template{
+	err := i.AddTemplate(&v1.Template{
 		APIVersion: "v1",
 		Template: v1.TemplateSpec{
 			Name:    "template-1",
 			Content: "test",
 		},
 	})
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.template) != 1 {
 		t.Errorf("Expected 1 template, got %d", len(i.template))
 	}
@@ -153,11 +165,17 @@ func Test_Index_RemoveTemplate(t *testing.T) {
 			Content: "test",
 		},
 	}
-	i.AddTemplate(tmpl)
+	err := i.AddTemplate(tmpl)
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.template) != 1 {
 		t.Errorf("Expected 1 template, got %d", len(i.template))
 	}
-	i.RemoveTemplate(tmpl)
+	err = i.RemoveTemplate(tmpl)
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.template) != 0 {
 		t.Errorf("Expected 0 template, got %d", len(i.template))
 	}
@@ -188,7 +206,7 @@ func Test_Index_RemoveTemplate_Missing(t *testing.T) {
 // adds one Repository and then checks that it was added.
 func Test_Index_AddRepository(t *testing.T) {
 	i := NewIndex()
-	i.AddRepository(&v1.Repository{
+	err := i.AddRepository(&v1.Repository{
 		APIVersion: "v1",
 		Repository: v1.RepositorySpec{
 			Name:       "repo-1",
@@ -196,6 +214,9 @@ func Test_Index_AddRepository(t *testing.T) {
 			Branch:     "test-branch",
 		},
 	})
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.repository) != 1 {
 		t.Errorf("Expected 1 repository, got %d", len(i.repository))
 	}
@@ -229,11 +250,17 @@ func Test_Index_RemoveRepository(t *testing.T) {
 			Branch:     "test-branch",
 		},
 	}
-	i.AddRepository(repo)
+	err := i.AddRepository(repo)
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.repository) != 1 {
 		t.Errorf("Expected 1 repository, got %d", len(i.repository))
 	}
-	i.RemoveRepository(repo)
+	err = i.RemoveRepository(repo)
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.repository) != 0 {
 		t.Errorf("Expected 0 repository, got %d", len(i.repository))
 	}
@@ -377,6 +404,13 @@ func Test_Index_Load_TwoResources(t *testing.T) {
 	}
 }
 
+// mustChmod is a helper function that chmods a file and panics on error.
+func mustChmod(t *testing.T, path string, mode os.FileMode) {
+	if err := os.Chmod(path, mode); err != nil {
+		t.Fatalf("Failed to chmod %s to %s: %v", path, mode, err)
+	}
+}
+
 // Test_Index_UnreadableFile tests the Load function of the Index. It
 // expects to receive an error due to an unreadable file.
 func Test_Index_UnreadableFile(t *testing.T) {
@@ -385,7 +419,7 @@ func Test_Index_UnreadableFile(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to chmod file: %s", err)
 	}
-	defer os.Chmod("testdata/003-load-unreadable-file/resource-1.yaml", 0664)
+	defer mustChmod(t, "testdata/003-load-unreadable-file/resource-1.yaml", 0664)
 	i := NewIndex()
 	errs := i.Load("testdata/003-load-unreadable-file")
 	if len(errs) != 1 {
@@ -404,7 +438,7 @@ func Test_Index_UnreadableDir(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to chmod directory: %s", err)
 	}
-	defer os.Chmod("testdata/004-load-unreadable-dir", 0775)
+	defer mustChmod(t, "testdata/004-load-unreadable-dir", 0775)
 	i := NewIndex()
 	errs := i.Load("testdata/004-load-unreadable-dir")
 	if len(errs) != 1 {

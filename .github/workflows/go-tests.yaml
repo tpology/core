@@ -10,6 +10,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    environment: ci
     steps:
     - uses: actions/checkout@v3
 
@@ -18,5 +19,16 @@ jobs:
       with:
         go-version: 1.18
 
-    - name: Test
-      run: go test -v ./...
+    - name: Measure code coverage
+      run: |
+        go test -coverprofile=coverage.txt -covermode=atomic ./...
+
+    - name: Generate coverage report
+      run: |
+        go tool cover -html=coverage.txt -o coverage.html
+
+    - name: Publish coverage report
+      run: |
+        curl -Os https://uploader.codecov.io/latest/linux/codecov
+        chmod +x codecov
+        ./codecov -f coverage.txt

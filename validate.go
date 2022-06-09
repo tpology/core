@@ -130,3 +130,35 @@ func validateRepositoryFields(r map[string]interface{}) []error {
 func validateRepositorySpecFields(r map[interface{}]interface{}) []error {
 	return validateSpecFields("repository", r, v1.ValidRepositorySpecFields)
 }
+
+// validateLoadPolicy validates a LoadPolicy.
+func validateLoadPolicy(p v1.LoadPolicy) error {
+	if p.Name == "" {
+		return fmt.Errorf("load policy name is required")
+	}
+	if p.Effect == "" {
+		return fmt.Errorf("load policy effect is required")
+	}
+	if p.Effect != v1.Allow && p.Effect != v1.Deny {
+		return fmt.Errorf("load policy effect must be either `allow` or `deny`")
+	}
+	if p.Resource != nil {
+		// Both Template and Repository must be nil
+		if p.Template != nil || p.Repository != nil {
+			return fmt.Errorf("load policy must have exclusively one template, repository, or resource")
+		}
+	} else if p.Template != nil {
+		// Both Repository and Resource must be nil
+		if p.Repository != nil || p.Resource != nil {
+			return fmt.Errorf("load policy must have exclusively one template, repository, or resource")
+		}
+	} else if p.Repository != nil {
+		// Both Template and Resource must be nil
+		if p.Template != nil || p.Resource != nil {
+			return fmt.Errorf("load policy must have exclusively one template, repository, or resource")
+		}
+	} else {
+		return fmt.Errorf("load policy must have one of template, repository, or resource")
+	}
+	return nil
+}

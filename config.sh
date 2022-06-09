@@ -19,6 +19,11 @@ function diffs() {
     git diff $merge_base..HEAD
 }
 
+# Run git rm on all deleted files
+function gitrm() {
+    git ls-files --deleted | xargs git rm
+}
+
 # Install a git pre-commit hook that runs golangci-lint
 function install_golangci_lint() {
     local hook_path=$(git rev-parse --show-toplevel)/.git/hooks/pre-commit

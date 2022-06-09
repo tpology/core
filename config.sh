@@ -25,6 +25,7 @@ function install_golangci_lint() {
     local hook_content="$(cat <<EOF
 #!/bin/bash
 golangci-lint run
+go test ./...
 EOF
 )"
     echo -e "$hook_content" > $hook_path

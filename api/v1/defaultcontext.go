@@ -3,8 +3,6 @@ package v1
 // DefaultContext is the context passed to a template if some other context
 // is not specified.
 type DefaultContext struct {
-	// SelfType is the type of the Self object.
-	SelfType string `yaml:"selfType"`
 	// Self is the resource spec of the resource generating the output.
 	Self interface{} `yaml:"self"`
 	// Resources is a map of all the resource specs, keyed by kind and then

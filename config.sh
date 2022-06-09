@@ -13,4 +13,10 @@ function prompt_func() {
     fi
 }
 
+# Diffs is a function that shows a git diff between the merge-base and HEAD.
+function diffs() {
+    local merge_base=$(git merge-base HEAD origin/main)
+    git diff $merge_base..HEAD
+}
+
 export PS1="\[\033[0;32m\]\u@\h\[\033[0;34m\] \w \$(prompt_func)\[\033[0m\]\$ "

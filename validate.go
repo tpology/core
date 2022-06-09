@@ -6,26 +6,6 @@ import (
 	v1 "github.com/tpology/core/api/v1"
 )
 
-// validate validates the Index
-func (i *Index) validate() []error {
-	errs := []error{}
-	// validate resources
-	for _, resources := range i.resourceByKind {
-		for _, r := range resources {
-			errs = append(errs, validateResource(r)...)
-		}
-	}
-	// validate templates
-	for _, t := range i.template {
-		errs = append(errs, validateTemplate(t)...)
-	}
-	// validate repositories
-	for _, r := range i.repository {
-		errs = append(errs, validateRepository(r)...)
-	}
-	return errs
-}
-
 // validateResource validates the resource
 func validateResource(r *v1.Resource) []error {
 	errs := []error{}
@@ -36,6 +16,15 @@ func validateResource(r *v1.Resource) []error {
 	// validate name
 	if r.Resource.Name == "" {
 		errs = append(errs, fmt.Errorf("resource name is required"))
+	}
+	// validate outputs
+	for _, o := range r.Resource.Outputs {
+		if o.Name == "" {
+			errs = append(errs, fmt.Errorf("output name is required"))
+		}
+		if o.Template == "" {
+			errs = append(errs, fmt.Errorf("output template is required"))
+		}
 	}
 	return errs
 }
@@ -136,11 +125,11 @@ func validateLoadPolicy(p v1.LoadPolicy) error {
 	if p.Name == "" {
 		return fmt.Errorf("load policy name is required")
 	}
-	if p.Effect == "" {
-		return fmt.Errorf("load policy effect is required")
+	if p.Effect == "" || (p.Effect != v1.Allow && p.Effect != v1.Deny) {
+		return fmt.Errorf("load policy effect must be either `Allow` or `Deny`")
 	}
-	if p.Effect != v1.Allow && p.Effect != v1.Deny {
-		return fmt.Errorf("load policy effect must be either `allow` or `deny`")
+	if len(p.Paths) == 0 {
+		return fmt.Errorf("load policy requires at least one path")
 	}
 	if p.Resource != nil {
 		// Both Template and Repository must be nil
@@ -148,16 +137,11 @@ func validateLoadPolicy(p v1.LoadPolicy) error {
 			return fmt.Errorf("load policy must have exclusively one template, repository, or resource")
 		}
 	} else if p.Template != nil {
-		// Both Repository and Resource must be nil
-		if p.Repository != nil || p.Resource != nil {
+		// Repository must be nil
+		if p.Repository != nil {
 			return fmt.Errorf("load policy must have exclusively one template, repository, or resource")
 		}
-	} else if p.Repository != nil {
-		// Both Template and Resource must be nil
-		if p.Template != nil || p.Resource != nil {
-			return fmt.Errorf("load policy must have exclusively one template, repository, or resource")
-		}
-	} else {
+	} else if p.Repository == nil {
 		return fmt.Errorf("load policy must have one of template, repository, or resource")
 	}
 	return nil

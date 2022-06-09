@@ -1,0 +1,9 @@
+apiVersion: v1
+resource:
+  name: resource-1
+  kind: test
+  outputs:
+    - repository: repository
+      file: path
+      template: template
+      postProcessor: postProcessor

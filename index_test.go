@@ -626,3 +626,16 @@ func Test_Index_Load_TwoRepositorySameName(t *testing.T) {
 		t.Errorf("Expected testdata/027-two-repositories-same-name/repository-2.yaml: repository repo-1 already exists, got %s", errs[0].Error())
 	}
 }
+
+// Test_Index_LoadNonexistentDir tests the Load function of the Index. It
+// expects to get an error trying to load a directory that doesn't exist.
+func Test_Index_LoadNonexistentDir(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/nonexistent-dir", nil)
+	if len(errs) != 1 {
+		t.Errorf("Expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "lstat testdata/nonexistent-dir: no such file or directory" {
+		t.Errorf("Expected lstat testdata/nonexistent-dir: no such file or directory, got %s", errs[0].Error())
+	}
+}

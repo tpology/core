@@ -16,8 +16,8 @@ type LoadPolicy struct {
 	Name string `yaml:"name"`
 	// Effect is the effect of the load policy.
 	Effect Effect `yaml:"effect"`
-	// Path is the path pattern of the resources covered by the load policy.
-	Path string `yaml:"path"`
+	// Paths is a list of path patterns of the resources covered by the load policy.
+	Paths []string `yaml:"path"`
 	// Resource is the spec of a resource covered by the policy. All non-empty
 	// fields of this resource must match the actual resource being loaded for
 	// the policy to match.

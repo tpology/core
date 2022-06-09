@@ -23,7 +23,7 @@ func Test_Index_AddResource(t *testing.T) {
 				{
 					Name:       "output-1",
 					Repository: "repo-1",
-					Path:       "path-1",
+					File:       "path-1",
 					Template:   "template-1",
 				},
 			},
@@ -54,11 +54,11 @@ func Test_Index_AddResource(t *testing.T) {
 	if res.Resource.Annotations["annotation"] != "value" {
 		t.Errorf("Expected value, got %s", res.Resource.Annotations["annotation"])
 	}
-	if len(res.Resource.Data) != 1 {
-		t.Errorf("Expected 1 data, got %d", len(res.Resource.Data))
+	if len(res.Resource.Data.(map[string]interface{})) != 1 {
+		t.Errorf("Expected 1 data, got %d", len(res.Resource.Data.(map[string]interface{})))
 	}
-	if res.Resource.Data["data"] != "value" {
-		t.Errorf("Expected value, got %s", res.Resource.Data["data"])
+	if res.Resource.Data.(map[string]interface{})["data"] != "value" {
+		t.Errorf("Expected value, got %s", res.Resource.Data.(map[string]interface{})["data"])
 	}
 	if len(res.Resource.Outputs) != 1 {
 		t.Errorf("Expected 1 output, got %d", len(res.Resource.Outputs))
@@ -69,8 +69,8 @@ func Test_Index_AddResource(t *testing.T) {
 	if res.Resource.Outputs[0].Repository != "repo-1" {
 		t.Errorf("Expected repo-1, got %s", res.Resource.Outputs[0].Repository)
 	}
-	if res.Resource.Outputs[0].Path != "path-1" {
-		t.Errorf("Expected path-1, got %s", res.Resource.Outputs[0].Path)
+	if res.Resource.Outputs[0].File != "path-1" {
+		t.Errorf("Expected path-1, got %s", res.Resource.Outputs[0].File)
 	}
 	if res.Resource.Outputs[0].Template != "template-1" {
 		t.Errorf("Expected template-1, got %s", res.Resource.Outputs[0].Template)
@@ -287,8 +287,8 @@ func Test_Index_Load_Basic_Resource(t *testing.T) {
 	if len(res.Resource.Annotations) != 0 {
 		t.Errorf("Expected 0 annotations, got %d", len(res.Resource.Annotations))
 	}
-	if len(res.Resource.Data) != 0 {
-		t.Errorf("Expected 0 data, got %d", len(res.Resource.Data))
+	if res.Resource.Data != nil {
+		t.Errorf("Expected nil data, got %v", res.Resource.Data)
 	}
 	if len(res.Resource.Outputs) != 0 {
 		t.Errorf("Expected 0 outputs, got %d", len(res.Resource.Outputs))
@@ -509,8 +509,8 @@ func Test_Index_LoadResourceWithOutput(t *testing.T) {
 		t.Errorf("Expected output-1, got %s", resource.Resource.Outputs[0].Name)
 	}
 	// Validate path
-	if resource.Resource.Outputs[0].Path != "path" {
-		t.Errorf("Expected path, got %s", resource.Resource.Outputs[0].Path)
+	if resource.Resource.Outputs[0].File != "path" {
+		t.Errorf("Expected path, got %s", resource.Resource.Outputs[0].File)
 	}
 	// Validate repository
 	if resource.Resource.Outputs[0].Repository != "repository" {

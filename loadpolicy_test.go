@@ -1,13 +1,8 @@
 package core
 
 import (
-	"fmt"
 	"testing"
 )
-
-func breakf() {
-	fmt.Println("Breaking")
-}
 
 type matchAndExtractTokensTestCase struct {
 	breakf         func()

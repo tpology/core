@@ -86,7 +86,7 @@ func (i *Index) RemoveRepository(r *v1.Repository) error {
 	return fmt.Errorf("repository %s does not exist", r.Repository.Name)
 }
 
-func (i *Index) Load(dir string) []error {
+func (i *Index) Load(dir string, loadPolicy *v1.LoadPolicy) []error {
 	errs := []error{}
 	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {

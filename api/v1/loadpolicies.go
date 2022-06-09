@@ -31,3 +31,6 @@ type LoadPolicy struct {
 	// the policy to match.
 	Repository *RepositorySpec `yaml:"repository"`
 }
+
+// ValidLoadPolicyFields is the list of valid fields in a LoadPolicy.
+var ValidLoadPolicyFields = []string{"name", "effect", "path", "resource", "template", "repository"}

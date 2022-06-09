@@ -291,7 +291,7 @@ func Test_Index_RemoveRepository_Missing(t *testing.T) {
 // Test_Index_Load tests the Load function of the Index
 func Test_Index_Load_Basic_Resource(t *testing.T) {
 	i := NewIndex()
-	i.Load("testdata/000-basic-resource")
+	i.Load("testdata/000-basic-resource", nil)
 	if len(i.resourceByKind) != 1 {
 		t.Errorf("Expected 1 kind, got %d", len(i.resourceByKind))
 	}
@@ -325,7 +325,7 @@ func Test_Index_Load_Basic_Resource(t *testing.T) {
 // Test_Index_Load_Basic_Template tests the Load function of the Index
 func Test_Index_Load_Basic_Template(t *testing.T) {
 	i := NewIndex()
-	i.Load("testdata/001-basic-template")
+	i.Load("testdata/001-basic-template", nil)
 	if len(i.resourceByKind) != 0 {
 		t.Errorf("Expected 0 kinds, got %d", len(i.resourceByKind))
 	}
@@ -344,7 +344,7 @@ func Test_Index_Load_Basic_Template(t *testing.T) {
 // Test_Index_Load_Basic_Repository tests the Load function of the Index
 func Test_Index_Load_Basic_Repository(t *testing.T) {
 	i := NewIndex()
-	i.Load("testdata/016-basic-repository")
+	i.Load("testdata/016-basic-repository", nil)
 	if len(i.resourceByKind) != 0 {
 		t.Errorf("Expected 0 kinds, got %d", len(i.resourceByKind))
 	}
@@ -376,7 +376,7 @@ func Test_Index_Load_Basic_Repository(t *testing.T) {
 // expects to find one Resource and one Template.
 func Test_Index_Load_TwoResources(t *testing.T) {
 	i := NewIndex()
-	i.Load("testdata/002-two-resources")
+	i.Load("testdata/002-two-resources", nil)
 	// Expect 1 resource of kind test and name resource-1
 	if len(i.resourceByKind) != 1 {
 		t.Errorf("Expected 1 kind, got %d", len(i.resourceByKind))
@@ -421,7 +421,7 @@ func Test_Index_UnreadableFile(t *testing.T) {
 	}
 	defer mustChmod(t, "testdata/003-load-unreadable-file/resource-1.yaml", 0664)
 	i := NewIndex()
-	errs := i.Load("testdata/003-load-unreadable-file")
+	errs := i.Load("testdata/003-load-unreadable-file", nil)
 	if len(errs) != 1 {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
@@ -440,7 +440,7 @@ func Test_Index_UnreadableDir(t *testing.T) {
 	}
 	defer mustChmod(t, "testdata/004-load-unreadable-dir", 0775)
 	i := NewIndex()
-	errs := i.Load("testdata/004-load-unreadable-dir")
+	errs := i.Load("testdata/004-load-unreadable-dir", nil)
 	if len(errs) != 1 {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
@@ -453,7 +453,7 @@ func Test_Index_UnreadableDir(t *testing.T) {
 // expects to receive an error due to a corrupted document.
 func Test_Index_Load_CorruptedDocument(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/005-load-corrupted-document")
+	errs := i.Load("testdata/005-load-corrupted-document", nil)
 	if len(errs) != 1 {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
@@ -466,7 +466,7 @@ func Test_Index_Load_CorruptedDocument(t *testing.T) {
 // expects to receive an error due to a missing API version.
 func Test_Index_MissingAPIVersion(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/006-missing-apiversion")
+	errs := i.Load("testdata/006-missing-apiversion", nil)
 	if len(errs) != 1 {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
@@ -479,7 +479,7 @@ func Test_Index_MissingAPIVersion(t *testing.T) {
 // expects to receive an error due to an invalid API version.
 func Test_Index_InvalidAPIVersion(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/007-invalid-apiversion")
+	errs := i.Load("testdata/007-invalid-apiversion", nil)
 	if len(errs) != 1 {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
@@ -492,7 +492,7 @@ func Test_Index_InvalidAPIVersion(t *testing.T) {
 // expects to receive an error due to an invalid resource.
 func Test_Index_Load_InvalidResource(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/008-invalid-resource")
+	errs := i.Load("testdata/008-invalid-resource", nil)
 	if len(errs) != 1 {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
@@ -505,7 +505,7 @@ func Test_Index_Load_InvalidResource(t *testing.T) {
 // expects to receive multiple errors.
 func Test_Index_Load_MultipleErrors(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/017-multiple-errors")
+	errs := i.Load("testdata/017-multiple-errors", nil)
 	if len(errs) != 2 {
 		t.Errorf("Expected 2 errors, got %d", len(errs))
 	}
@@ -521,7 +521,7 @@ func Test_Index_Load_MultipleErrors(t *testing.T) {
 // expects to load 1 Resource with 1 Output.
 func Test_Index_LoadResourceWithOutput(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/023-resource-with-output")
+	errs := i.Load("testdata/023-resource-with-output", nil)
 	if len(errs) != 0 {
 		t.Errorf("Expected 0 errors, got %d", len(errs))
 	}
@@ -564,7 +564,7 @@ func Test_Index_LoadResourceWithOutput(t *testing.T) {
 // expects to get an error trying to load 2 resources of the same kind and name.
 func Test_Index_Load_TwoResourceSameName(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/024-two-resources-same-name")
+	errs := i.Load("testdata/024-two-resources-same-name", nil)
 	if len(errs) != 1 {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
@@ -578,7 +578,7 @@ func Test_Index_Load_TwoResourceSameName(t *testing.T) {
 // but different kinds.
 func Test_Index_Load_TwoResourceSameNameDifferentKind(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/025-two-resources-same-name-different-kind")
+	errs := i.Load("testdata/025-two-resources-same-name-different-kind", nil)
 	if len(errs) != 0 {
 		t.Errorf("Expected 0 errors, got %d", len(errs))
 	}
@@ -605,7 +605,7 @@ func Test_Index_Load_TwoResourceSameNameDifferentKind(t *testing.T) {
 // expects to get an error trying to load 2 templates of the same name.
 func Test_Index_Load_TwoTemplateSameName(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/026-two-templates-same-name")
+	errs := i.Load("testdata/026-two-templates-same-name", nil)
 	if len(errs) != 1 {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}
@@ -618,7 +618,7 @@ func Test_Index_Load_TwoTemplateSameName(t *testing.T) {
 // It expects to get an error trying to load 2 repositories of the same name.
 func Test_Index_Load_TwoRepositorySameName(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/027-two-repositories-same-name")
+	errs := i.Load("testdata/027-two-repositories-same-name", nil)
 	if len(errs) != 1 {
 		t.Errorf("Expected 1 error, got %d", len(errs))
 	}

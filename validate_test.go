@@ -5,7 +5,7 @@ import "testing"
 // Test_Validate_MissingResourceKind tests that a resource without a kind is not valid
 func Test_Validate_MissingResourceKind(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/validate/009-missing-resource-kind")
+	errs := i.Load("testdata/validate/009-missing-resource-kind", nil)
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
@@ -17,7 +17,7 @@ func Test_Validate_MissingResourceKind(t *testing.T) {
 // Test_Valid_MissingResourceName tests that a resource without a name is not valid
 func Test_Validate_MissingResourceName(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/validate/010-missing-resource-name")
+	errs := i.Load("testdata/validate/010-missing-resource-name", nil)
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
@@ -29,7 +29,7 @@ func Test_Validate_MissingResourceName(t *testing.T) {
 // Test_Valid_MissingTemplateName tests that a template without a name is not valid
 func Test_Validate_MissingTemplateName(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/validate/011-missing-template-name")
+	errs := i.Load("testdata/validate/011-missing-template-name", nil)
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
@@ -41,7 +41,7 @@ func Test_Validate_MissingTemplateName(t *testing.T) {
 // Test_Valid_InvalidResourceField tests that an invalid resource field is not valid
 func Test_Validate_InvalidResourceField(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/validate/012-invalid-resource-field")
+	errs := i.Load("testdata/validate/012-invalid-resource-field", nil)
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
@@ -53,7 +53,7 @@ func Test_Validate_InvalidResourceField(t *testing.T) {
 // Test_Valid_InvalidResourceSpecField tests that an invalid resource spec field is not valid
 func Test_Validate_InvalidResourceSpecField(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/validate/013-invalid-resource-spec-field")
+	errs := i.Load("testdata/validate/013-invalid-resource-spec-field", nil)
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
@@ -65,7 +65,7 @@ func Test_Validate_InvalidResourceSpecField(t *testing.T) {
 // Test_Valid_InvalidTemplateField tests that an invalid template field is not valid
 func Test_Validate_InvalidTemplateField(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/validate/014-invalid-template-field")
+	errs := i.Load("testdata/validate/014-invalid-template-field", nil)
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
@@ -77,7 +77,7 @@ func Test_Validate_InvalidTemplateField(t *testing.T) {
 // Test_Valid_InvalidTemplateSpecField tests that an invalid template spec field is not valid
 func Test_Validate_InvalidTemplateSpecField(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/validate/015-invalid-template-spec-field")
+	errs := i.Load("testdata/validate/015-invalid-template-spec-field", nil)
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
@@ -89,7 +89,7 @@ func Test_Validate_InvalidTemplateSpecField(t *testing.T) {
 // Test_Valid_InvalidRepositoryField tests that an invalid repository field is not valid
 func Test_Validate_InvalidRepositoryField(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/validate/021-invalid-repository-field")
+	errs := i.Load("testdata/validate/021-invalid-repository-field", nil)
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
@@ -101,7 +101,7 @@ func Test_Validate_InvalidRepositoryField(t *testing.T) {
 // Test_Valid_InvalidRepositorySpecField tests that an invalid repository spec field is not valid
 func Test_Validate_InvalidRepositorySpecField(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/validate/022-invalid-repository-spec-field")
+	errs := i.Load("testdata/validate/022-invalid-repository-spec-field", nil)
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
@@ -113,7 +113,7 @@ func Test_Validate_InvalidRepositorySpecField(t *testing.T) {
 // Test_Valid_MissingRepositoryName tests that a repository without a name is not valid
 func Test_Validate_MissingRepositoryName(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/validate/018-missing-repository-name")
+	errs := i.Load("testdata/validate/018-missing-repository-name", nil)
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
@@ -125,7 +125,7 @@ func Test_Validate_MissingRepositoryName(t *testing.T) {
 // Test_Valid_MissingRepository tests that a repository without a repo is not valid
 func Test_Validate_MissingRepository(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/validate/019-missing-repository")
+	errs := i.Load("testdata/validate/019-missing-repository", nil)
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}
@@ -137,7 +137,7 @@ func Test_Validate_MissingRepository(t *testing.T) {
 // Test_Valid_MissingRepositoryBranch tests that a repository without a branch is not valid
 func Test_Validate_MissingRepositoryBranch(t *testing.T) {
 	i := NewIndex()
-	errs := i.Load("testdata/validate/020-missing-repository-branch")
+	errs := i.Load("testdata/validate/020-missing-repository-branch", nil)
 	if len(errs) != 1 {
 		t.Errorf("expected 1 error, got %d", len(errs))
 	}

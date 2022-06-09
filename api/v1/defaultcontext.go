@@ -6,7 +6,7 @@ type DefaultContext struct {
 	// SelfType is the type of the Self object.
 	SelfType string `yaml:"selfType"`
 	// Self is the resource spec of the resource generating the output.
-	Self map[string]interface{} `yaml:"self"`
+	Self interface{} `yaml:"self"`
 	// Resources is a map of all the resource specs, keyed by kind and then
 	// name.
 	Resources map[string]map[string]*ResourceSpec `yaml:"resources"`

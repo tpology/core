@@ -150,10 +150,16 @@ func (i *Index) Load(dir string) []error {
 			var resource v1.Resource
 			err = yaml.Unmarshal(yamlBytes, &resource)
 			if err != nil {
-				errs = append(errs, err)
+				// Format the error to prepend the resource path
+				errs = append(errs, fmt.Errorf("%s: %s", path, err))
 				return nil
 			}
-			i.AddResource(&resource)
+			err = i.AddResource(&resource)
+			if err != nil {
+				// Format the error to prepend the resource path
+				errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				return nil
+			}
 		} else if _, ok := doc["template"]; ok {
 			// If there is a template key, unmarshal as Template
 			verrs := validateTemplateFields(doc)
@@ -175,10 +181,16 @@ func (i *Index) Load(dir string) []error {
 			var template v1.Template
 			err = yaml.Unmarshal(yamlBytes, &template)
 			if err != nil {
-				errs = append(errs, err)
+				// Format the error to prepend the resource path
+				errs = append(errs, fmt.Errorf("%s: %s", path, err))
 				return nil
 			}
-			i.AddTemplate(&template)
+			err = i.AddTemplate(&template)
+			if err != nil {
+				// Format the error to prepend the resource path
+				errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				return nil
+			}
 		} else if _, ok := doc["repository"]; ok {
 			// If there is a repository key, unmarshal as Repository
 			verrs := validateRepositoryFields(doc)
@@ -200,10 +212,16 @@ func (i *Index) Load(dir string) []error {
 			var repository v1.Repository
 			err = yaml.Unmarshal(yamlBytes, &repository)
 			if err != nil {
-				errs = append(errs, err)
+				// Format the error to prepend the resource path
+				errs = append(errs, fmt.Errorf("%s: %s", path, err))
 				return nil
 			}
-			i.AddRepository(&repository)
+			err = i.AddRepository(&repository)
+			if err != nil {
+				// Format the error to prepend the resource path
+				errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				return nil
+			}
 		} else {
 			errs = append(errs, fmt.Errorf("%s: no resource or template", path))
 		}

@@ -98,6 +98,27 @@ func Test_Index_RemoveResource(t *testing.T) {
 	}
 }
 
+// Test_Index_RemoveResource_Missing tests the RemoveResource function of the
+// Index. It removes one Resource that does not exist and then checks that it
+// was not removed.
+func Test_Index_RemoveResource_Missing(t *testing.T) {
+	i := NewIndex()
+	r := &v1.Resource{
+		APIVersion: "v1",
+		Resource: v1.ResourceSpec{
+			Name: "resource-1",
+			Kind: "test",
+		},
+	}
+	err := i.RemoveResource(r)
+	if err == nil {
+		t.Errorf("Expected error, got nil")
+	}
+	if err.Error() != "resource resource-1 of kind test does not exist" {
+		t.Errorf("Expected error 'resource resource-1 of kind test does not exist', got %s", err.Error())
+	}
+}
+
 // Test_Index_AddTemplate tests the AddTemplate function of the Index. It
 // adds one Template and then checks that it was added.
 func Test_Index_AddTemplate(t *testing.T) {
@@ -139,6 +160,27 @@ func Test_Index_RemoveTemplate(t *testing.T) {
 	i.RemoveTemplate(tmpl)
 	if len(i.template) != 0 {
 		t.Errorf("Expected 0 template, got %d", len(i.template))
+	}
+}
+
+// Test_Index_RemoveTemplate_Missing tests the RemoveTemplate function of the
+// Index. It removes one Template that does not exist and then checks that it
+// was not removed.
+func Test_Index_RemoveTemplate_Missing(t *testing.T) {
+	i := NewIndex()
+	tmpl := &v1.Template{
+		APIVersion: "v1",
+		Template: v1.TemplateSpec{
+			Name:    "template-1",
+			Content: "test",
+		},
+	}
+	err := i.RemoveTemplate(tmpl)
+	if err == nil {
+		t.Errorf("Expected error, got nil")
+	}
+	if err.Error() != "template template-1 does not exist" {
+		t.Errorf("Expected error 'template template-1 does not exist', got %s", err.Error())
 	}
 }
 
@@ -194,6 +236,28 @@ func Test_Index_RemoveRepository(t *testing.T) {
 	i.RemoveRepository(repo)
 	if len(i.repository) != 0 {
 		t.Errorf("Expected 0 repository, got %d", len(i.repository))
+	}
+}
+
+// Test_Index_RemoveRepository_Missing tests the RemoveRepository function of
+// the Index. It removes one Repository that does not exist and then checks
+// that it was not removed.
+func Test_Index_RemoveRepository_Missing(t *testing.T) {
+	i := NewIndex()
+	repo := &v1.Repository{
+		APIVersion: "v1",
+		Repository: v1.RepositorySpec{
+			Name:       "repo-1",
+			Repository: "test-repo-1",
+			Branch:     "test-branch",
+		},
+	}
+	err := i.RemoveRepository(repo)
+	if err == nil {
+		t.Errorf("Expected error, got nil")
+	}
+	if err.Error() != "repository repo-1 does not exist" {
+		t.Errorf("Expected error 'repository repo-1 does not exist', got %s", err.Error())
 	}
 }
 
@@ -459,5 +523,72 @@ func Test_Index_LoadResourceWithOutput(t *testing.T) {
 	// Validate postProcessor
 	if resource.Resource.Outputs[0].PostProcessor != "postProcessor" {
 		t.Errorf("Expected postProcessor, got %s", resource.Resource.Outputs[0].PostProcessor)
+	}
+}
+
+// Test_Index_Load_TwoResourceSameName tests the Load function of the Index. It
+// expects to get an error trying to load 2 resources of the same kind and name.
+func Test_Index_Load_TwoResourceSameName(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/024-two-resources-same-name")
+	if len(errs) != 1 {
+		t.Errorf("Expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "testdata/024-two-resources-same-name/resource-2.yaml: resource resource-1 of kind test already exists" {
+		t.Errorf("Expected testdata/024-two-resources-same-name/resource-2.yaml: resource resource-1 of kind test already exists, got %s", errs[0].Error())
+	}
+}
+
+// Test_Index_Load_TwoResourceSameNameDifferentKind tests the Load function of
+// the Index. It expects to successfully load two resources of the same name
+// but different kinds.
+func Test_Index_Load_TwoResourceSameNameDifferentKind(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/025-two-resources-same-name-different-kind")
+	if len(errs) != 0 {
+		t.Errorf("Expected 0 errors, got %d", len(errs))
+	}
+	if len(i.resourceByKind) != 2 {
+		t.Errorf("Expected 2 resources, got %d", len(i.resourceByKind))
+	}
+	if len(i.resourceByKind["test"]) != 1 {
+		t.Errorf("Expected 1 resource, got %d", len(i.resourceByKind["test"]))
+	}
+	if len(i.resourceByKind["test2"]) != 1 {
+		t.Errorf("Expected 1 resource, got %d", len(i.resourceByKind["test2"]))
+	}
+	resource := i.resourceByKind["test"]["resource-1"]
+	if resource.Resource.Name != "resource-1" {
+		t.Errorf("Expected resource-1, got %s", resource.Resource.Name)
+	}
+	resource = i.resourceByKind["test2"]["resource-1"]
+	if resource.Resource.Name != "resource-1" {
+		t.Errorf("Expected resource-1, got %s", resource.Resource.Name)
+	}
+}
+
+// Test_Index_Load_TwoTemplateSameName tests the Load function of the Index. It
+// expects to get an error trying to load 2 templates of the same name.
+func Test_Index_Load_TwoTemplateSameName(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/026-two-templates-same-name")
+	if len(errs) != 1 {
+		t.Errorf("Expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "testdata/026-two-templates-same-name/template-2.yaml: template template-1 already exists" {
+		t.Errorf("Expected testdata/026-two-templates-same-name/template-2.yaml: template template-1 already exists, got %s", errs[0].Error())
+	}
+}
+
+// Test_Index_Load_TwoRepositorySameName tests the Load function of the Index.
+// It expects to get an error trying to load 2 repositories of the same name.
+func Test_Index_Load_TwoRepositorySameName(t *testing.T) {
+	i := NewIndex()
+	errs := i.Load("testdata/027-two-repositories-same-name")
+	if len(errs) != 1 {
+		t.Errorf("Expected 1 error, got %d", len(errs))
+	}
+	if errs[0].Error() != "testdata/027-two-repositories-same-name/repository-2.yaml: repository repo-1 already exists" {
+		t.Errorf("Expected testdata/027-two-repositories-same-name/repository-2.yaml: repository repo-1 already exists, got %s", errs[0].Error())
 	}
 }

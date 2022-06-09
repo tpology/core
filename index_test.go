@@ -11,7 +11,7 @@ import (
 // adds one Resource and then checks that it was added.
 func Test_Index_AddResource(t *testing.T) {
 	i := NewIndex()
-	i.AddResource(&v1.Resource{
+	err := i.AddResource(&v1.Resource{
 		APIVersion: "v1",
 		Resource: v1.ResourceSpec{
 			Name:        "resource-1",
@@ -23,12 +23,15 @@ func Test_Index_AddResource(t *testing.T) {
 				{
 					Name:       "output-1",
 					Repository: "repo-1",
-					Path:       "path-1",
+					File:       "path-1",
 					Template:   "template-1",
 				},
 			},
 		},
 	})
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.resourceByKind) != 1 {
 		t.Errorf("Expected 1 kind, got %d", len(i.resourceByKind))
 	}
@@ -54,11 +57,11 @@ func Test_Index_AddResource(t *testing.T) {
 	if res.Resource.Annotations["annotation"] != "value" {
 		t.Errorf("Expected value, got %s", res.Resource.Annotations["annotation"])
 	}
-	if len(res.Resource.Data) != 1 {
-		t.Errorf("Expected 1 data, got %d", len(res.Resource.Data))
+	if len(res.Resource.Data.(map[string]interface{})) != 1 {
+		t.Errorf("Expected 1 data, got %d", len(res.Resource.Data.(map[string]interface{})))
 	}
-	if res.Resource.Data["data"] != "value" {
-		t.Errorf("Expected value, got %s", res.Resource.Data["data"])
+	if res.Resource.Data.(map[string]interface{})["data"] != "value" {
+		t.Errorf("Expected value, got %s", res.Resource.Data.(map[string]interface{})["data"])
 	}
 	if len(res.Resource.Outputs) != 1 {
 		t.Errorf("Expected 1 output, got %d", len(res.Resource.Outputs))
@@ -69,8 +72,8 @@ func Test_Index_AddResource(t *testing.T) {
 	if res.Resource.Outputs[0].Repository != "repo-1" {
 		t.Errorf("Expected repo-1, got %s", res.Resource.Outputs[0].Repository)
 	}
-	if res.Resource.Outputs[0].Path != "path-1" {
-		t.Errorf("Expected path-1, got %s", res.Resource.Outputs[0].Path)
+	if res.Resource.Outputs[0].File != "path-1" {
+		t.Errorf("Expected path-1, got %s", res.Resource.Outputs[0].File)
 	}
 	if res.Resource.Outputs[0].Template != "template-1" {
 		t.Errorf("Expected template-1, got %s", res.Resource.Outputs[0].Template)
@@ -88,11 +91,17 @@ func Test_Index_RemoveResource(t *testing.T) {
 			Kind: "test",
 		},
 	}
-	i.AddResource(r)
+	err := i.AddResource(r)
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.resourceByKind) != 1 {
 		t.Errorf("Expected 1 kind, got %d", len(i.resourceByKind))
 	}
-	i.RemoveResource(r)
+	err = i.RemoveResource(r)
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.resourceByKind) != 0 {
 		t.Errorf("Expected 0 kind, got %d", len(i.resourceByKind))
 	}
@@ -123,13 +132,16 @@ func Test_Index_RemoveResource_Missing(t *testing.T) {
 // adds one Template and then checks that it was added.
 func Test_Index_AddTemplate(t *testing.T) {
 	i := NewIndex()
-	i.AddTemplate(&v1.Template{
+	err := i.AddTemplate(&v1.Template{
 		APIVersion: "v1",
 		Template: v1.TemplateSpec{
 			Name:    "template-1",
 			Content: "test",
 		},
 	})
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.template) != 1 {
 		t.Errorf("Expected 1 template, got %d", len(i.template))
 	}
@@ -153,11 +165,17 @@ func Test_Index_RemoveTemplate(t *testing.T) {
 			Content: "test",
 		},
 	}
-	i.AddTemplate(tmpl)
+	err := i.AddTemplate(tmpl)
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.template) != 1 {
 		t.Errorf("Expected 1 template, got %d", len(i.template))
 	}
-	i.RemoveTemplate(tmpl)
+	err = i.RemoveTemplate(tmpl)
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.template) != 0 {
 		t.Errorf("Expected 0 template, got %d", len(i.template))
 	}
@@ -188,7 +206,7 @@ func Test_Index_RemoveTemplate_Missing(t *testing.T) {
 // adds one Repository and then checks that it was added.
 func Test_Index_AddRepository(t *testing.T) {
 	i := NewIndex()
-	i.AddRepository(&v1.Repository{
+	err := i.AddRepository(&v1.Repository{
 		APIVersion: "v1",
 		Repository: v1.RepositorySpec{
 			Name:       "repo-1",
@@ -196,6 +214,9 @@ func Test_Index_AddRepository(t *testing.T) {
 			Branch:     "test-branch",
 		},
 	})
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.repository) != 1 {
 		t.Errorf("Expected 1 repository, got %d", len(i.repository))
 	}
@@ -229,11 +250,17 @@ func Test_Index_RemoveRepository(t *testing.T) {
 			Branch:     "test-branch",
 		},
 	}
-	i.AddRepository(repo)
+	err := i.AddRepository(repo)
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.repository) != 1 {
 		t.Errorf("Expected 1 repository, got %d", len(i.repository))
 	}
-	i.RemoveRepository(repo)
+	err = i.RemoveRepository(repo)
+	if err != nil {
+		t.Errorf("Expected nil, got %s", err.Error())
+	}
 	if len(i.repository) != 0 {
 		t.Errorf("Expected 0 repository, got %d", len(i.repository))
 	}
@@ -287,8 +314,8 @@ func Test_Index_Load_Basic_Resource(t *testing.T) {
 	if len(res.Resource.Annotations) != 0 {
 		t.Errorf("Expected 0 annotations, got %d", len(res.Resource.Annotations))
 	}
-	if len(res.Resource.Data) != 0 {
-		t.Errorf("Expected 0 data, got %d", len(res.Resource.Data))
+	if res.Resource.Data != nil {
+		t.Errorf("Expected nil data, got %v", res.Resource.Data)
 	}
 	if len(res.Resource.Outputs) != 0 {
 		t.Errorf("Expected 0 outputs, got %d", len(res.Resource.Outputs))
@@ -377,6 +404,13 @@ func Test_Index_Load_TwoResources(t *testing.T) {
 	}
 }
 
+// mustChmod is a helper function that chmods a file and panics on error.
+func mustChmod(t *testing.T, path string, mode os.FileMode) {
+	if err := os.Chmod(path, mode); err != nil {
+		t.Fatalf("Failed to chmod %s to %s: %v", path, mode, err)
+	}
+}
+
 // Test_Index_UnreadableFile tests the Load function of the Index. It
 // expects to receive an error due to an unreadable file.
 func Test_Index_UnreadableFile(t *testing.T) {
@@ -385,7 +419,7 @@ func Test_Index_UnreadableFile(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to chmod file: %s", err)
 	}
-	defer os.Chmod("testdata/003-load-unreadable-file/resource-1.yaml", 0664)
+	defer mustChmod(t, "testdata/003-load-unreadable-file/resource-1.yaml", 0664)
 	i := NewIndex()
 	errs := i.Load("testdata/003-load-unreadable-file")
 	if len(errs) != 1 {
@@ -404,7 +438,7 @@ func Test_Index_UnreadableDir(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to chmod directory: %s", err)
 	}
-	defer os.Chmod("testdata/004-load-unreadable-dir", 0775)
+	defer mustChmod(t, "testdata/004-load-unreadable-dir", 0775)
 	i := NewIndex()
 	errs := i.Load("testdata/004-load-unreadable-dir")
 	if len(errs) != 1 {
@@ -509,8 +543,8 @@ func Test_Index_LoadResourceWithOutput(t *testing.T) {
 		t.Errorf("Expected output-1, got %s", resource.Resource.Outputs[0].Name)
 	}
 	// Validate path
-	if resource.Resource.Outputs[0].Path != "path" {
-		t.Errorf("Expected path, got %s", resource.Resource.Outputs[0].Path)
+	if resource.Resource.Outputs[0].File != "path" {
+		t.Errorf("Expected path, got %s", resource.Resource.Outputs[0].File)
 	}
 	// Validate repository
 	if resource.Resource.Outputs[0].Repository != "repository" {

@@ -5,6 +5,6 @@ resource:
   outputs:
     - name: output-1
       repository: repository
-      path: path
+      file: path
       template: template
       postProcessor: postProcessor

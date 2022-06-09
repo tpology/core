@@ -27,41 +27,63 @@ func NewIndex() *Index {
 }
 
 // AddResource adds a resource to the index
-func (i *Index) AddResource(r *v1.Resource) {
+func (i *Index) AddResource(r *v1.Resource) error {
 	if _, ok := i.resourceByKind[r.Resource.Kind]; !ok {
 		i.resourceByKind[r.Resource.Kind] = map[string]*v1.Resource{}
 	}
+	if _, ok := i.resourceByKind[r.Resource.Kind][r.Resource.Name]; ok {
+		return fmt.Errorf("resource %s of kind %s already exists", r.Resource.Name, r.Resource.Kind)
+	}
 	i.resourceByKind[r.Resource.Kind][r.Resource.Name] = r
+	return nil
 }
 
 // RemoveResource removes a resource from the index
-func (i *Index) RemoveResource(r *v1.Resource) {
+func (i *Index) RemoveResource(r *v1.Resource) error {
 	if _, ok := i.resourceByKind[r.Resource.Kind]; ok {
 		delete(i.resourceByKind[r.Resource.Kind], r.Resource.Name)
 		if len(i.resourceByKind[r.Resource.Kind]) == 0 {
 			delete(i.resourceByKind, r.Resource.Kind)
 		}
+		return nil
 	}
+	return fmt.Errorf("resource %s of kind %s does not exist", r.Resource.Name, r.Resource.Kind)
 }
 
 // AddTemplate adds a template to the index
-func (i *Index) AddTemplate(t *v1.Template) {
+func (i *Index) AddTemplate(t *v1.Template) error {
+	if _, ok := i.template[t.Template.Name]; ok {
+		return fmt.Errorf("template %s already exists", t.Template.Name)
+	}
 	i.template[t.Template.Name] = t
+	return nil
 }
 
 // RemoveTemplate removes a template from the index
-func (i *Index) RemoveTemplate(t *v1.Template) {
-	delete(i.template, t.Template.Name)
+func (i *Index) RemoveTemplate(t *v1.Template) error {
+	if _, ok := i.template[t.Template.Name]; ok {
+		delete(i.template, t.Template.Name)
+		return nil
+	}
+	return fmt.Errorf("template %s does not exist", t.Template.Name)
 }
 
 // AddRepository adds a repository to the index
-func (i *Index) AddRepository(r *v1.Repository) {
+func (i *Index) AddRepository(r *v1.Repository) error {
+	if _, ok := i.repository[r.Repository.Name]; ok {
+		return fmt.Errorf("repository %s already exists", r.Repository.Name)
+	}
 	i.repository[r.Repository.Name] = r
+	return nil
 }
 
 // RemoveRepository removes a repository from the index
-func (i *Index) RemoveRepository(r *v1.Repository) {
-	delete(i.repository, r.Repository.Name)
+func (i *Index) RemoveRepository(r *v1.Repository) error {
+	if _, ok := i.repository[r.Repository.Name]; ok {
+		delete(i.repository, r.Repository.Name)
+		return nil
+	}
+	return fmt.Errorf("repository %s does not exist", r.Repository.Name)
 }
 
 func (i *Index) Load(dir string) []error {

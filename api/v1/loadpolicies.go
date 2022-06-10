@@ -21,15 +21,15 @@ type LoadPolicy struct {
 	// Resource is the spec of a resource covered by the policy. All non-empty
 	// fields of this resource must match the actual resource being loaded for
 	// the policy to match.
-	Resource *ResourceSpec `yaml:"resource"`
+	Resource *map[string]interface{} `yaml:"resource"`
 	// Template is the spec of a template covered by the policy. All non-empty
 	// fields of this template must match the actual template being loaded for
 	// the policy to match.
-	Template *TemplateSpec `yaml:"template"`
+	Template *map[string]interface{} `yaml:"template"`
 	// Repository is the spec of a repository covered by the policy. All non-empty
 	// fields of this repository must match the actual repository being loaded for
 	// the policy to match.
-	Repository *RepositorySpec `yaml:"repository"`
+	Repository *map[string]interface{} `yaml:"repository"`
 }
 
 // ValidLoadPolicyFields is the list of valid fields in a LoadPolicy.

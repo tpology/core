@@ -194,7 +194,7 @@ func Test_ValidateLoadPolicy_Allow(t *testing.T) {
 		Paths: []string{
 			"/",
 		},
-		Resource:   &v1.ResourceSpec{},
+		Resource:   &map[string]interface{}{},
 		Template:   nil,
 		Repository: nil,
 	}
@@ -212,7 +212,7 @@ func Test_ValidateLoadPolicy_Deny(t *testing.T) {
 		Paths: []string{
 			"/",
 		},
-		Resource:   &v1.ResourceSpec{},
+		Resource:   &map[string]interface{}{},
 		Template:   nil,
 		Repository: nil,
 	}
@@ -230,7 +230,7 @@ func Test_ValidateLoadPolicy_InvalidName(t *testing.T) {
 		Paths: []string{
 			"/",
 		},
-		Resource:   &v1.ResourceSpec{},
+		Resource:   &map[string]interface{}{},
 		Template:   nil,
 		Repository: nil,
 	}
@@ -251,7 +251,7 @@ func Test_ValidateLoadPolicy_InvalidEffect(t *testing.T) {
 		Paths: []string{
 			"/",
 		},
-		Resource:   &v1.ResourceSpec{},
+		Resource:   &map[string]interface{}{},
 		Template:   nil,
 		Repository: nil,
 	}
@@ -272,7 +272,7 @@ func Test_ValidateLoadPolicy_EmptyEffect(t *testing.T) {
 		Paths: []string{
 			"/",
 		},
-		Resource:   &v1.ResourceSpec{},
+		Resource:   &map[string]interface{}{},
 		Template:   nil,
 		Repository: nil,
 	}
@@ -291,7 +291,7 @@ func Test_ValidateLoadPolicy_NoPaths(t *testing.T) {
 		Name:       "test",
 		Effect:     v1.Allow,
 		Paths:      []string{},
-		Resource:   &v1.ResourceSpec{},
+		Resource:   &map[string]interface{}{},
 		Template:   nil,
 		Repository: nil,
 	}
@@ -333,11 +333,11 @@ func Test_ValidateLoadPolicy_ResourceAndTemplate_Invalid(t *testing.T) {
 		Paths: []string{
 			"/",
 		},
-		Resource: &v1.ResourceSpec{
-			Name: "test",
+		Resource: &map[string]interface{}{
+			"name": "test",
 		},
-		Template: &v1.TemplateSpec{
-			Name: "test",
+		Template: &map[string]interface{}{
+			"name": "test",
 		},
 		Repository: nil,
 	}
@@ -358,12 +358,12 @@ func Test_ValidateLoadPolicy_ResourceAndRepository_Invalid(t *testing.T) {
 		Paths: []string{
 			"/",
 		},
-		Resource: &v1.ResourceSpec{
-			Name: "test",
+		Resource: &map[string]interface{}{
+			"name": "test",
 		},
 		Template: nil,
-		Repository: &v1.RepositorySpec{
-			Name: "test",
+		Repository: &map[string]interface{}{
+			"name": "test",
 		},
 	}
 	err := validateLoadPolicy(p)
@@ -384,11 +384,11 @@ func Test_ValidateLoadPolicy_RepositoryAndTemplate_Invalid(t *testing.T) {
 			"/",
 		},
 		Resource: nil,
-		Template: &v1.TemplateSpec{
-			Name: "test",
+		Template: &map[string]interface{}{
+			"name": "test",
 		},
-		Repository: &v1.RepositorySpec{
-			Name: "test",
+		Repository: &map[string]interface{}{
+			"name": "test",
 		},
 	}
 	err := validateLoadPolicy(p)

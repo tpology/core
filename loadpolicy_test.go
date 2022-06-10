@@ -1,11 +1,11 @@
 package core
 
 import (
+	"reflect"
 	"testing"
 )
 
 type matchAndExtractTokensTestCase struct {
-	breakf         func()
 	name           string
 	pattern        []string
 	filename       []string
@@ -181,9 +181,6 @@ var matchAndExtractTokensTestCases = []matchAndExtractTokensTestCase{
 
 func Test_matchAndExtractTokens(t *testing.T) {
 	for _, testCase := range matchAndExtractTokensTestCases {
-		if testCase.breakf != nil {
-			testCase.breakf()
-		}
 		match, tokens := matchAndExtractTokens(testCase.pattern, testCase.filename)
 		if match != testCase.expectedMatch {
 			t.Errorf("%s: match mismatch: expected %t, got %t", testCase.name, testCase.expectedMatch, match)
@@ -195,6 +192,313 @@ func Test_matchAndExtractTokens(t *testing.T) {
 			if tokens[tokenName] != tokenValue {
 				t.Errorf("%s: token value mismatch: expected %s, got %s", testCase.name, tokenValue, tokens[tokenName])
 			}
+		}
+	}
+}
+
+var splitPathTestCases = []struct {
+	name           string
+	path           string
+	expectedResult []string
+}{
+	{
+		name:           "empty path",
+		path:           "",
+		expectedResult: []string{},
+	},
+	{
+		name:           "single component",
+		path:           "foo",
+		expectedResult: []string{"foo"},
+	},
+	{
+		name:           "multiple components",
+		path:           "foo/bar/baz",
+		expectedResult: []string{"foo", "bar", "baz"},
+	},
+	{
+		name:           "multiple components with trailing slash",
+		path:           "foo/bar/baz/",
+		expectedResult: []string{"foo", "bar", "baz"},
+	},
+	{
+		name:           "multiple components with leading slash",
+		path:           "/foo/bar/baz",
+		expectedResult: []string{"foo", "bar", "baz"},
+	},
+	{
+		name:           "multiple components with leading and trailing slash",
+		path:           "/foo/bar/baz/",
+		expectedResult: []string{"foo", "bar", "baz"},
+	},
+	{
+		name:           "repeated slashes",
+		path:           "//foo//bar//baz",
+		expectedResult: []string{"foo", "bar", "baz"},
+	},
+}
+
+func Test_splitPathTestCases(t *testing.T) {
+	for _, testCase := range splitPathTestCases {
+		result := splitPath(testCase.path)
+		if !reflect.DeepEqual(result, testCase.expectedResult) {
+			t.Errorf("%s: result mismatch: expected %v, got %v", testCase.name, testCase.expectedResult, result)
+		}
+	}
+}
+
+type isSubsetTestCase struct {
+	name           string
+	subset         interface{}
+	set            interface{}
+	expectedResult bool
+}
+
+var isSubsetTestCases = []isSubsetTestCase{
+	{
+		name:           "empty subset",
+		subset:         map[string]interface{}{},
+		set:            map[string]interface{}{"foo": "bar"},
+		expectedResult: true,
+	},
+	{
+		name:           "empty set",
+		subset:         map[string]interface{}{"foo": "bar"},
+		set:            map[string]interface{}{},
+		expectedResult: false,
+	},
+	{
+		name:           "subset is equal to set",
+		subset:         map[string]interface{}{"foo": "bar"},
+		set:            map[string]interface{}{"foo": "bar"},
+		expectedResult: true,
+	},
+	{
+		name:           "subset is a subset of set",
+		subset:         map[string]interface{}{"foo": "bar"},
+		set:            map[string]interface{}{"foo": "bar", "baz": "qux"},
+		expectedResult: true,
+	},
+	{
+		name:           "subset is not a subset of set",
+		subset:         map[string]interface{}{"foo": "bar"},
+		set:            map[string]interface{}{"baz": "qux", "quux": "corge"},
+		expectedResult: false,
+	},
+	{
+		name:           "subset is a subset of set with different values",
+		subset:         map[string]interface{}{"foo": "bar"},
+		set:            map[string]interface{}{"foo": "baz", "baz": "qux"},
+		expectedResult: false,
+	},
+	{
+		name: "nested set",
+		subset: map[string]interface{}{
+			"foo": map[string]interface{}{
+				"bar": "baz",
+			},
+		},
+		set: map[string]interface{}{
+			"foo": map[string]interface{}{
+				"bar": "baz",
+			},
+			"baz": "qux",
+		},
+		expectedResult: true,
+	},
+	{
+		name: "unrelated",
+		subset: map[string]interface{}{
+			"foo": map[string]interface{}{
+				"bar": "baz",
+			},
+		},
+		set: map[string]interface{}{
+			"baz": "qux",
+		},
+		expectedResult: false,
+	},
+	{
+		name: "two slices",
+		subset: []interface{}{
+			map[string]interface{}{
+				"foo": "bar",
+			},
+			map[string]interface{}{
+				"baz": "qux",
+			},
+		},
+		set: []interface{}{
+			map[string]interface{}{
+				"foo": "bar",
+			},
+			map[string]interface{}{
+				"baz": "qux",
+			},
+		},
+		expectedResult: true,
+	},
+	{
+		name: "two slices subset",
+		subset: []interface{}{
+			map[string]interface{}{
+				"foo": "bar",
+			},
+			map[string]interface{}{
+				"baz": "qux",
+			},
+		},
+		set: []interface{}{
+			map[string]interface{}{
+				"foo": "bar",
+				"baz": "qux",
+			},
+			map[string]interface{}{
+				"baz":  "qux",
+				"quux": "corge",
+			},
+		},
+		expectedResult: true,
+	},
+	{
+		name: "two slices different length",
+		subset: []interface{}{
+			map[string]interface{}{
+				"foo": "bar",
+			},
+			map[string]interface{}{
+				"baz": "qux",
+			},
+		},
+		set: []interface{}{
+			map[string]interface{}{
+				"foo": "bar",
+			},
+			map[string]interface{}{
+				"baz": "qux",
+			},
+			map[string]interface{}{
+				"quux": "corge",
+			},
+		},
+		expectedResult: false,
+	},
+	{
+		name: "map vs slice",
+		subset: map[string]interface{}{
+			"foo": "bar",
+		},
+		set: []interface{}{
+			map[string]interface{}{
+				"foo": "bar",
+			},
+		},
+		expectedResult: false,
+	},
+	{
+		name: "slice vs map",
+		subset: []interface{}{
+			map[string]interface{}{
+				"foo": "bar",
+			},
+		},
+		set: map[string]interface{}{
+			"foo": "bar",
+		},
+		expectedResult: false,
+	},
+	{
+		name: "slices not subsets",
+		subset: []interface{}{
+			map[string]interface{}{
+				"foo": "baz",
+			},
+		},
+		set: []interface{}{
+			map[string]interface{}{
+				"foo": "bar",
+			},
+		},
+		expectedResult: false,
+	},
+	{
+		name: "map interface/interface not subsets",
+		subset: map[interface{}]interface{}{
+			"foo": "baz",
+		},
+		set: map[interface{}]interface{}{
+			"foo": "bar",
+		},
+		expectedResult: false,
+	},
+	{
+		name: "map interface/interface subset",
+		subset: map[interface{}]interface{}{
+			"foo": "baz",
+		},
+		set: map[interface{}]interface{}{
+			"foo": "baz",
+		},
+		expectedResult: true,
+	},
+	{
+		name: "map interface/interface not slice subset",
+		subset: map[interface{}]interface{}{
+			"foo": "baz",
+		},
+		set: []interface{}{
+			map[string]interface{}{
+				"foo": "bar",
+			},
+		},
+		expectedResult: false,
+	},
+	{
+		name: "three levels subset",
+		subset: map[string]interface{}{
+			"foo": map[string]interface{}{
+				"bar": map[string]interface{}{
+					"baz": "qux",
+				},
+			},
+		},
+		set: map[string]interface{}{
+			"foo": map[string]interface{}{
+				"bar": map[string]interface{}{
+					"baz": "qux",
+				},
+			},
+			"baz": "qux",
+		},
+		expectedResult: true,
+	},
+	{
+		name: "three levels not subset",
+		subset: map[string]interface{}{
+			"foo": map[string]interface{}{
+				"bar": map[string]interface{}{
+					"baz": "quuz",
+				},
+			},
+		},
+		set: map[string]interface{}{
+			"foo": map[string]interface{}{
+				"bar": map[string]interface{}{
+					"baz": "qux",
+				},
+			},
+			"baz": "qux",
+		},
+		expectedResult: false,
+	},
+}
+
+// Test_isSubset tests isSubset function
+func Test_isSubset(t *testing.T) {
+	for _, testCase := range isSubsetTestCases {
+		result := isSubset(testCase.subset, testCase.set)
+		if result != testCase.expectedResult {
+			t.Errorf("%s: result mismatch: expected %t, got %t", testCase.name, testCase.expectedResult, result)
 		}
 	}
 }

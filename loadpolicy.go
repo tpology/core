@@ -1,5 +1,9 @@
 package core
 
+import (
+	"strings"
+)
+
 // matchAndExtractTokens attempts to match the pattern slice with the
 // filename slice, extracting tokens as it goes.
 func matchAndExtractTokens(pattern []string, filename []string) (bool, map[string]string) {
@@ -62,4 +66,60 @@ func matchAndExtractTokens(pattern []string, filename []string) (bool, map[strin
 		return false, map[string]string{}
 	}
 	return false, map[string]string{}
+}
+
+// splitPath splits the path
+func splitPath(path string) []string {
+	result := []string{}
+	for _, part := range strings.Split(path, "/") {
+		if part != "" {
+			result = append(result, part)
+		}
+	}
+	return result
+}
+
+// isSubset return if the obj a is a subset of the obj b
+func isSubset(a, b interface{}) bool {
+	switch aval := a.(type) {
+	case map[interface{}]interface{}:
+		bval, ok := b.(map[interface{}]interface{})
+		if !ok {
+			return false
+		}
+		for k, v := range aval {
+			if bv, ok := bval[k]; !ok || !isSubset(v, bv) {
+				return false
+			}
+		}
+		return true
+	case map[string]interface{}:
+		bval, ok := b.(map[string]interface{})
+		if !ok {
+			return false
+		}
+		for k, v := range aval {
+			if bv, ok := bval[k]; !ok || !isSubset(v, bv) {
+				return false
+			}
+		}
+		return true
+	case []interface{}:
+		bval, ok := b.([]interface{})
+		if !ok {
+			return false
+		}
+		// must be same length, and corresponding elements must be subsets
+		if len(aval) != len(bval) {
+			return false
+		}
+		for i, v := range aval {
+			if !isSubset(v, bval[i]) {
+				return false
+			}
+		}
+		return true
+	default:
+		return a == b
+	}
 }

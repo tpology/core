@@ -56,7 +56,7 @@ func matchAndExtractTokens(pattern []string, filename []string) (bool, map[strin
 		}
 		return matchAndExtractTokens(pattern, filename[1:])
 	}
-	// Is the pattern and filename the same?
+	// Are the pattern and filename the same?
 	if pattern[0] == filename[0] {
 		// Match the rest of the pattern and filename
 		remainderMatch, remainderTokens := matchAndExtractTokens(pattern[1:], filename[1:])
@@ -121,5 +121,58 @@ func isSubset(a, b interface{}) bool {
 		return true
 	default:
 		return a == b
+	}
+}
+
+// inject injects the tokens into a string
+func inject(s string, tokens map[string]string) string {
+	for k, v := range tokens {
+		s = strings.Replace(s, "{"+k+"}", v, -1)
+	}
+	return s
+}
+
+// injectTokenValues injects the token values into the object
+func injectTokenValues(obj interface{}, tokens map[string]string) interface{} {
+	switch o := obj.(type) {
+	case map[interface{}]interface{}:
+		for k, v := range o {
+			// Inject into v
+			v = injectTokenValues(v, tokens)
+			o[k] = v
+			// if k is a string, try to inject into it
+			if ks, ok := k.(string); ok {
+				ks = inject(ks, tokens)
+				if ks != k {
+					o[ks] = v
+					delete(o, k)
+				}
+			}
+		}
+		return o
+	case map[string]interface{}:
+		for k, v := range o {
+			// Inject into v
+			v = injectTokenValues(v, tokens)
+			o[k] = v
+			// inject into k
+			ks := inject(k, tokens)
+			if ks != k {
+				o[ks] = v
+				delete(o, k)
+			}
+		}
+		return o
+	case []interface{}:
+		for i, v := range o {
+			// Inject into v
+			v = injectTokenValues(v, tokens)
+			o[i] = v
+		}
+		return o
+	case string:
+		return inject(o, tokens)
+	default:
+		return obj
 	}
 }

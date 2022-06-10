@@ -502,3 +502,296 @@ func Test_isSubset(t *testing.T) {
 		}
 	}
 }
+
+// injectTestCase is a test case for injectTokenValues
+type injectTestCase struct {
+	name     string
+	in       interface{}
+	tokens   map[string]string
+	expected interface{}
+}
+
+// injectTestCases is a list of injectTestCase
+var injectTestCases = []injectTestCase{
+	{
+		name: "no tokens",
+		in: map[string]interface{}{
+			"foo": "bar",
+		},
+		tokens: map[string]string{
+			"foo": "bar",
+		},
+		expected: map[string]interface{}{
+			"foo": "bar",
+		},
+	},
+	{
+		name: "one token in value",
+		in: map[string]interface{}{
+			"foo": "{foo}",
+		},
+		tokens: map[string]string{
+			"foo": "baz",
+		},
+		expected: map[string]interface{}{
+			"foo": "baz",
+		},
+	},
+	{
+		name: "one token in key",
+		in: map[string]interface{}{
+			"{foo}": "bar",
+		},
+		tokens: map[string]string{
+			"foo": "baz",
+		},
+		expected: map[string]interface{}{
+			"baz": "bar",
+		},
+	},
+	{
+		name: "two tokens in value",
+		in: map[string]interface{}{
+			"foo": "{foo} {bar}",
+		},
+		tokens: map[string]string{
+			"foo": "baz",
+			"bar": "qux",
+		},
+		expected: map[string]interface{}{
+			"foo": "baz qux",
+		},
+	},
+	{
+		name: "two tokens in key",
+		in: map[string]interface{}{
+			"{foo} {bar}": "bar",
+		},
+		tokens: map[string]string{
+			"foo": "baz",
+			"bar": "qux",
+		},
+		expected: map[string]interface{}{
+			"baz qux": "bar",
+		},
+	},
+	{
+		name: "two tokens in key and value",
+		in: map[string]interface{}{
+			"{foo} {bar}": "{foo} {bar}",
+		},
+		tokens: map[string]string{
+			"foo": "baz",
+			"bar": "qux",
+		},
+		expected: map[string]interface{}{
+			"baz qux": "baz qux",
+		},
+	},
+	{
+		name: "two tokens in key and value with different order",
+		in: map[string]interface{}{
+			"{foo} {bar}": "{bar} {foo}",
+		},
+		tokens: map[string]string{
+			"foo": "baz",
+			"bar": "qux",
+		},
+		expected: map[string]interface{}{
+			"baz qux": "qux baz",
+		},
+	},
+	{
+		name: "two slices",
+		in: map[string]interface{}{
+			"foo": []interface{}{
+				"{foo}",
+				"{bar}",
+			},
+			"bar": []interface{}{
+				"{foo}",
+				"{bar}",
+			},
+		},
+		tokens: map[string]string{
+			"foo": "baz",
+			"bar": "qux",
+		},
+		expected: map[string]interface{}{
+			"foo": []interface{}{
+				"baz",
+				"qux",
+			},
+			"bar": []interface{}{
+				"baz",
+				"qux",
+			},
+		},
+	},
+	{
+		name: "two slices with different order",
+		in: map[string]interface{}{
+			"foo": []interface{}{
+				"{foo}",
+				"{bar}",
+			},
+			"bar": []interface{}{
+				"{bar}",
+				"{foo}",
+			},
+		},
+		tokens: map[string]string{
+			"foo": "baz",
+			"bar": "qux",
+		},
+		expected: map[string]interface{}{
+			"foo": []interface{}{
+				"baz",
+				"qux",
+			},
+			"bar": []interface{}{
+				"qux",
+				"baz",
+			},
+		},
+	},
+	{
+		name: "two slices with different order and different length",
+		in: map[string]interface{}{
+			"foo": []interface{}{
+				"{foo}",
+				"{bar}",
+			},
+			"bar": []interface{}{
+				"{bar}",
+				"{foo}",
+				"{baz}",
+			},
+		},
+		tokens: map[string]string{
+			"foo": "baz",
+			"bar": "qux",
+			"baz": "quux",
+		},
+		expected: map[string]interface{}{
+			"foo": []interface{}{
+				"baz",
+				"qux",
+			},
+			"bar": []interface{}{
+				"qux",
+				"baz",
+				"quux",
+			},
+		},
+	},
+	{
+		name: "example of a resource with injections in the labels and annotations",
+		in: map[string]interface{}{
+			"labels": map[string]interface{}{
+				"team":            "{team}",
+				"owned-by-{team}": "true",
+			},
+			"annotations": map[string]interface{}{
+				"team":            "{team}",
+				"owned-by-{team}": "true",
+			},
+		},
+		tokens: map[string]string{
+			"team": "foo",
+		},
+		expected: map[string]interface{}{
+			"labels": map[string]interface{}{
+				"team":         "foo",
+				"owned-by-foo": "true",
+			},
+			"annotations": map[string]interface{}{
+				"team":         "foo",
+				"owned-by-foo": "true",
+			},
+		},
+	},
+}
+
+// Test_injectTestCases tests injectTokenValues function
+func Test_injectTestCases(t *testing.T) {
+	for _, testCase := range injectTestCases {
+		result := injectTokenValues(testCase.in, testCase.tokens)
+		// Deep comparison
+		if !reflect.DeepEqual(result, testCase.expected) {
+			t.Errorf("%s: result mismatch: expected %s, got %s", testCase.name, testCase.expected, result)
+		}
+	}
+}
+
+// stringInjectTestCase is a test case for simple inject
+type stringInjectTestCase struct {
+	name     string
+	in       string
+	tokens   map[string]string
+	expected string
+}
+
+var stringInjectTestCases = []stringInjectTestCase{
+	{
+		name: "one token",
+		in:   "foo {bar}",
+		tokens: map[string]string{
+			"bar": "baz",
+		},
+		expected: "foo baz",
+	},
+	{
+		name: "two tokens",
+		in:   "foo {bar} {qux}",
+		tokens: map[string]string{
+			"bar": "baz",
+			"qux": "quux",
+		},
+		expected: "foo baz quux",
+	},
+	{
+		name: "two tokens in different order",
+		in:   "foo {bar} {qux}",
+		tokens: map[string]string{
+			"qux": "quux",
+			"bar": "baz",
+		},
+		expected: "foo baz quux",
+	},
+	{
+		name: "same token twice",
+		in:   "foo {bar} {bar}",
+		tokens: map[string]string{
+			"bar": "baz",
+		},
+		expected: "foo baz baz",
+	},
+	{
+		name: "unknown token",
+		in:   "foo {bar}",
+		tokens: map[string]string{
+			"qux": "quux",
+		},
+		expected: "foo {bar}",
+	},
+	{
+		name: "token in double curly braces",
+		in:   "foo {{bar}}",
+		tokens: map[string]string{
+			"bar": "baz",
+		},
+		expected: "foo {baz}",
+	},
+}
+
+// Test_stringInjectTestCases tests injectTokenValues function
+func Test_stringInjectTestCases(t *testing.T) {
+	for _, testCase := range stringInjectTestCases {
+		result := inject(testCase.in, testCase.tokens)
+		// Deep comparison
+		if result != testCase.expected {
+			t.Errorf("%s: result mismatch: expected %s, got %s", testCase.name, testCase.expected, result)
+		}
+	}
+}

@@ -4,7 +4,9 @@ package v1
 // is not specified.
 type DefaultContext struct {
 	// Self is the resource spec of the resource generating the output.
-	Self interface{} `yaml:"self"`
+	Self *ResourceSpec `yaml:"self"`
+	// Output is the current output of the resource.
+	Output *OutputSpec `yaml:"output"`
 	// Resources is a map of all the resource specs, keyed by kind and then
 	// name.
 	Resources map[string]map[string]*ResourceSpec `yaml:"resources"`

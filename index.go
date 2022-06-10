@@ -86,9 +86,9 @@ func (i *Index) RemoveRepository(r *v1.Repository) error {
 	return fmt.Errorf("repository %s does not exist", r.Repository.Name)
 }
 
-func (i *Index) Load(dir string) []error {
+func (i *Index) Load(dir string, loadPolicy *v1.LoadPolicy) []error {
 	errs := []error{}
-	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			errs = append(errs, err)
 			return nil
@@ -136,14 +136,21 @@ func (i *Index) Load(dir string) []error {
 				}
 				return nil
 			}
-			output := doc["resource"].(map[interface{}]interface{})["output"]
-			if output != nil {
-				verrs = validateOutputSpecFields(doc["resource"].(map[interface{}]interface{})["output"].(map[interface{}]interface{}))
-				if len(verrs) > 0 {
-					// Format the errors to prepend the resource path
-					for _, err := range verrs {
-						errs = append(errs, fmt.Errorf("%s: %s", path, err))
+			outputs := doc["resource"].(map[interface{}]interface{})["outputs"]
+			if outputs != nil {
+				outputSpecs := outputs.([]interface{})
+				specError := false
+				for _, outputSpec := range outputSpecs {
+					verrs = validateOutputSpecFields(outputSpec.(map[interface{}]interface{}))
+					if len(verrs) > 0 {
+						// Format the errors to prepend the resource path
+						for _, err := range verrs {
+							specError = true
+							errs = append(errs, fmt.Errorf("%s: %s", path, err))
+						}
 					}
+				}
+				if specError {
 					return nil
 				}
 			}
@@ -152,6 +159,14 @@ func (i *Index) Load(dir string) []error {
 			if err != nil {
 				// Format the error to prepend the resource path
 				errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				return nil
+			}
+			verrs = validateResource(&resource)
+			if len(verrs) > 0 {
+				// Format the errors to prepend the resource path
+				for _, err := range verrs {
+					errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				}
 				return nil
 			}
 			err = i.AddResource(&resource)
@@ -185,6 +200,14 @@ func (i *Index) Load(dir string) []error {
 				errs = append(errs, fmt.Errorf("%s: %s", path, err))
 				return nil
 			}
+			verrs = validateTemplate(&template)
+			if len(verrs) > 0 {
+				// Format the errors to prepend the resource path
+				for _, err := range verrs {
+					errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				}
+				return nil
+			}
 			err = i.AddTemplate(&template)
 			if err != nil {
 				// Format the error to prepend the resource path
@@ -216,6 +239,14 @@ func (i *Index) Load(dir string) []error {
 				errs = append(errs, fmt.Errorf("%s: %s", path, err))
 				return nil
 			}
+			verrs = validateRepository(&repository)
+			if len(verrs) > 0 {
+				// Format the errors to prepend the resource path
+				for _, err := range verrs {
+					errs = append(errs, fmt.Errorf("%s: %s", path, err))
+				}
+				return nil
+			}
 			err = i.AddRepository(&repository)
 			if err != nil {
 				// Format the error to prepend the resource path
@@ -227,11 +258,8 @@ func (i *Index) Load(dir string) []error {
 		}
 		return nil
 	})
-	if err != nil {
-		errs = append(errs, err)
-	}
 	if len(errs) > 0 {
 		return errs
 	}
-	return i.validate()
+	return nil
 }
